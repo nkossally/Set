@@ -170,10 +170,16 @@ function () {
   }, {
     key: "removeCard",
     value: function removeCard(card) {
-      this.outOfPlayCards.push(card);
+      this.outOfPlayCards.push(card); // this.selected.splice(this.selected.indexOf(card), 1);
+
       idx = this.faceUpCards.indexOf(card);
       this.faceUpCount -= 1;
-      this.dealCard(idx);
+
+      if (this.faceUpCount < 12) {
+        this.dealCard(idx);
+      } else {
+        this.dealNullCard(idx);
+      }
     }
   }]);
 
@@ -505,9 +511,11 @@ handleSelect = function handleSelect(cx, cy) {
 
       if (card) {
         if (deck.selected.includes(card)) {
-          deck.selected.splice(deck.selected.indexOf(card), 1);
-          ctx.clearRect(pos.x, pos.y, CARD_SIZE.x, CARD_SIZE.y);
-          drawSymbols(card, pos);
+          deck.selected.splice(deck.selected.indexOf(card), 1); // ctx.clearRect(pos.x, pos.y, CARD_SIZE.x, CARD_SIZE.y);
+          // drawSymbols(card, pos);
+
+          renderBoard();
+          highlightSelected();
         } else {
           deck.selected.push(deck.faceUpCards[i]);
           highlightCard(pos);
@@ -523,7 +531,7 @@ handleSelect = function handleSelect(cx, cy) {
         };
         deck.selected.splice(2, 1);
         ctx.clearRect(oldPos.x, oldPos.y, CARD_SIZE.x, CARD_SIZE.y);
-        drawSymbols(deck.faceUpCards[_idx], oldPos);
+        drawSymbols(deck.faceUpCards[_idx], oldPos, 1);
       }
 
       break;
@@ -539,10 +547,13 @@ handleSubmit = function handleSubmit(cx, cy) {
           deck.removeCard(card);
           drawOutOfPlayCard();
         });
+        deck.selected = [];
         renderBoard();
       }
     }
   }
+
+  showMoveButton();
 };
 
 highlightCard = function highlightCard(pos) {
@@ -550,6 +561,17 @@ highlightCard = function highlightCard(pos) {
   ctx.fillStyle = "yellow";
   ctx.fillRect(pos.x, pos.y, CARD_SIZE.x, CARD_SIZE.y);
   ctx.globalAlpha = 1;
+};
+
+highlightSelected = function highlightSelected() {
+  deck.selected.forEach(function (card) {
+    idx = deck.faceUpCards.indexOf(card);
+    var pos = {
+      x: IN_SET.x + Math.floor(idx / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
+      y: IN_SET.y + idx % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
+    };
+    highlightCard(pos);
+  });
 };
 
 ctx.fillStyle = "gray";
@@ -564,20 +586,27 @@ ctx.font = "20px Georgia";
 ctx.fillText("Deal Three More", DEAL_THREE_MORE_POS.x, DEAL_THREE_MORE_POS.y + 30);
 
 handleDealThreeMore = function handleDealThreeMore(cx, cy) {
-  if (cx >= DEAL_THREE_MORE_POS.x && cx <= DEAL_THREE_MORE_POS.x + SUBMIT_SIZE.x && cy >= DEAL_THREE_MORE_POS.y && cy <= DEAL_THREE_MORE_POS.y + SUBMIT_SIZE.y) {
-    for (var i = 12; i < 15; i++) {
-      var pos = {
-        x: IN_SET.x + Math.floor(i / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
-        y: IN_SET.y + i % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
-      };
-      drawCard(pos, 1);
-      drawSymbols(deck.dealCard(i), pos, 1);
+  if (cx >= DEAL_THREE_MORE_POS.x && cx <= DEAL_THREE_MORE_POS.x + SUBMIT_SIZE.x && cy >= DEAL_THREE_MORE_POS.y && cy <= DEAL_THREE_MORE_POS.y + SUBMIT_SIZE.y && deck.faceUpCount <= 12) {
+    debugger;
+
+    for (var i = 0; i < 15; i++) {
+      if (deck.faceUpCards[i].symbol === undefined) {
+        var pos = {
+          x: IN_SET.x + Math.floor(i / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
+          y: IN_SET.y + i % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
+        };
+        drawCard(pos, 1);
+        drawSymbols(deck.dealCard(i), pos, 1);
+      }
     }
   }
+
+  showMoveButton();
 };
 
 handleShowMove = function handleShowMove(cx, cy) {
   if (cx >= SHOW_VALID_POS.x && cx <= SHOW_VALID_POS.x + SUBMIT_SIZE.x && cy >= SHOW_VALID_POS.y && cy <= SHOW_VALID_POS.y + SUBMIT_SIZE.y) {
+    renderBoard();
     var selections = game.findAllValidSelections(deck.faceUpCards);
 
     if (selections.length > 0) {
@@ -593,12 +622,6 @@ handleShowMove = function handleShowMove(cx, cy) {
     }
   }
 };
-
-ctx.fillStyle = "gray";
-ctx.fillRect(SHOW_VALID_POS.x, SHOW_VALID_POS.y, SUBMIT_SIZE.x, SUBMIT_SIZE.y);
-ctx.fillStyle = "white";
-ctx.font = "20px Georgia";
-ctx.fillText("Show Move", SHOW_VALID_POS.x, SHOW_VALID_POS.y + 30);
 
 renderBoard = function renderBoard() {
   for (var i = 0; i < 15; i++) {
@@ -635,6 +658,16 @@ newGame = function newGame() {
 
 window.onload = function () {
   newGame();
+  showMoveButton();
+};
+
+showMoveButton = function showMoveButton() {
+  ctx.fillStyle = "gray";
+  ctx.fillRect(SHOW_VALID_POS.x, SHOW_VALID_POS.y, SUBMIT_SIZE.x, SUBMIT_SIZE.y);
+  ctx.fillStyle = "white";
+  ctx.font = "20px Georgia";
+  ctx.fillText("".concat(game.findAllValidSelections(deck.faceUpCards).length), SHOW_VALID_POS.x, SHOW_VALID_POS.y + 10);
+  ctx.fillText("Show Move", SHOW_VALID_POS.x, SHOW_VALID_POS.y + 30);
 };
 
 ctx.fillStyle = "gray";
@@ -652,16 +685,7 @@ drawOutOfPlayCard = function drawOutOfPlayCard() {
   };
   drawCard(pos, scale);
   drawSymbols(deck.outOfPlayCards[idx], pos, scale);
-}; // for (let i = 0; i < 12; i++) {
-//   const pos = {x: IN_SET.x+Math.floor(i/3)*(CARD_SIZE.x+CARD_MARGIN.x), y: IN_SET.y+(i%3)*(CARD_SIZE.y+CARD_MARGIN.y)};
-//   drawCard(pos, 1);
-//   drawSymbols(deck.dealCard(i), pos, 1);
-// }
-// for (let i = 12; i < 15; i++) {
-//   const pos = {x: IN_SET.x+Math.floor(i/3)*(CARD_SIZE.x+CARD_MARGIN.x), y: IN_SET.y+(i%3)*(CARD_SIZE.y+CARD_MARGIN.y)};
-//   drawCard(pos, 1);
-//   drawNullCard( pos, 1);
-// }
+};
 
 /***/ })
 
