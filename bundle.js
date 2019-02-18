@@ -287,7 +287,7 @@ var Game = __webpack_require__(/*! ./game.js */ "./lib/game.js");
 
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
+canvas.width = 1500;
 canvas.height = 4790;
 ctx.fillStyle = "#06e4f8";
 ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -303,8 +303,7 @@ var IN_SET = {
 var CARD_MARGIN = {
   x: 20,
   y: 30
-}; // const RIGHT_SIDE = {x: IN_SET.x+5*(CARD_SIZE.x+CARD_MARGIN.x), y: IN_SET.y};
-
+};
 var SUBMIT_SIZE = {
   x: 150,
   y: 30
@@ -340,11 +339,51 @@ ctxPattern.beginPath();
 ctxPattern.moveTo(10, 10);
 ctxPattern.lineTo(0, 0);
 ctxPattern.closePath();
+var background = new Image();
+background.src = '../assets/images/images.png';
+var canvasBackground = document.createElement("canvas"); // canvasBackground.width = window.innerWidth;
+// canvasBackground.height = 4790;
+
+var ctxBackground = canvasBackground.getContext("2d");
+var backgroundPattern = ctxBackground.createPattern(background, "repeat");
+ctxBackground.fillStyle = backgroundPattern;
+ctxBackground.fillRect(0, 0, 300, 300);
 canvas.addEventListener("click", handleClick);
+ctx.beginPath(); // ctx.moveTo(100,100);
+// ctx.arcTo(0,100,0,0,30);
+// ctx.arcTo(0,0,100,0,30);
+// ctx.arcTo(100,0,100,100,30);
+// ctx.arcTo(100,100,0,100,30);
+// ctx.fillStyle = "black";
+// ctx.fill();
+// ctx.moveTo(100, 200);
+// ctx.arcTo(0,200,0,0,20);
+// ctx.arcTo(0,0,100,0,20);
+// ctx.arcTo(100,0,100,100,20);
+// ctx.arcTo(100,200,0,100,20);
+// ctx.fillStyle = "black";
+// ctx.fill();
+
+drawRoundedRec = function drawRoundedRec(pos, width, length, radius, color) {
+  ctx.beginPath();
+  ctx.moveTo(pos.x + radius, pos.y);
+  ctx.lineTo(pos.x + width - radius, pos.y, radius);
+  ctx.arcTo(pos.x + width, pos.y, pos.x + width, pos.y + radius, radius);
+  ctx.lineTo(pos.x + width, pos.y + length - radius);
+  ctx.arcTo(pos.x + width, pos.y + length, pos.x + width - radius, pos.y + length, radius);
+  ctx.lineTo(pos.x + radius, pos.y + length);
+  ctx.arcTo(pos.x, pos.y + length, pos.x, pos.y + length - radius, radius);
+  ctx.lineTo(pos.x, pos.y + radius);
+  ctx.arcTo(pos.x, pos.y, pos.x + radius, pos.y, radius);
+  ctx.fillStyle = color;
+  ctx.fill();
+}; // ctx.fillStyle = "white";
+// ctx.fillRect(100, 100, 5, 5);  
+
 
 drawCard = function drawCard(pos, scale) {
   ctx.fillStyle = "white";
-  ctx.fillRect(pos.x, pos.y, CARD_SIZE.x * scale, CARD_SIZE.y * scale);
+  drawRoundedRec(pos, CARD_SIZE.x * scale, CARD_SIZE.y * scale, CARD_SIZE.x * scale / 10, "white");
 };
 
 drawDiamond = function drawDiamond(card, pos, scale) {
@@ -557,9 +596,9 @@ handleSubmit = function handleSubmit(cx, cy) {
 };
 
 highlightCard = function highlightCard(pos) {
-  ctx.globalAlpha = .5;
-  ctx.fillStyle = "yellow";
-  ctx.fillRect(pos.x, pos.y, CARD_SIZE.x, CARD_SIZE.y);
+  ctx.globalAlpha = .5; // ctx.fillStyle = "yellow";
+
+  drawRoundedRec(pos, CARD_SIZE.x, CARD_SIZE.y, CARD_SIZE.x / 10, "yellow");
   ctx.globalAlpha = 1;
 };
 
@@ -575,20 +614,18 @@ highlightSelected = function highlightSelected() {
 };
 
 ctx.fillStyle = "gray";
-ctx.fillRect(SUBMIT_POS.x, SUBMIT_POS.y, SUBMIT_SIZE.x, SUBMIT_SIZE.y);
+drawRoundedRec(SUBMIT_POS, SUBMIT_SIZE.x, SUBMIT_SIZE.y, SUBMIT_SIZE.x / 10, "gray");
 ctx.fillStyle = "white";
 ctx.font = "20px Georgia";
 ctx.fillText("Submit", SUBMIT_POS.x, SUBMIT_POS.y + 30);
 ctx.fillStyle = "gray";
-ctx.fillRect(DEAL_THREE_MORE_POS.x, DEAL_THREE_MORE_POS.y, SUBMIT_SIZE.x, SUBMIT_SIZE.y);
+drawRoundedRec(DEAL_THREE_MORE_POS, SUBMIT_SIZE.x, SUBMIT_SIZE.y, SUBMIT_SIZE.x / 10, "gray");
 ctx.fillStyle = "white";
 ctx.font = "20px Georgia";
 ctx.fillText("Deal Three More", DEAL_THREE_MORE_POS.x, DEAL_THREE_MORE_POS.y + 30);
 
 handleDealThreeMore = function handleDealThreeMore(cx, cy) {
   if (cx >= DEAL_THREE_MORE_POS.x && cx <= DEAL_THREE_MORE_POS.x + SUBMIT_SIZE.x && cy >= DEAL_THREE_MORE_POS.y && cy <= DEAL_THREE_MORE_POS.y + SUBMIT_SIZE.y && deck.faceUpCount <= 12) {
-    debugger;
-
     for (var i = 0; i < 15; i++) {
       if (deck.faceUpCards[i].symbol === undefined) {
         var pos = {
@@ -663,7 +700,7 @@ window.onload = function () {
 
 showMoveButton = function showMoveButton() {
   ctx.fillStyle = "gray";
-  ctx.fillRect(SHOW_VALID_POS.x, SHOW_VALID_POS.y, SUBMIT_SIZE.x, SUBMIT_SIZE.y);
+  drawRoundedRec(SHOW_VALID_POS, SUBMIT_SIZE.x, SUBMIT_SIZE.y, SUBMIT_SIZE.x / 10, "gray");
   ctx.fillStyle = "white";
   ctx.font = "20px Georgia";
   ctx.fillText("".concat(game.findAllValidSelections(deck.faceUpCards).length), SHOW_VALID_POS.x, SHOW_VALID_POS.y + 10);
@@ -671,7 +708,8 @@ showMoveButton = function showMoveButton() {
 };
 
 ctx.fillStyle = "gray";
-ctx.fillRect(NEW_GAME_POS.x, NEW_GAME_POS.y, SUBMIT_SIZE.x, SUBMIT_SIZE.y);
+drawRoundedRec(NEW_GAME_POS, SUBMIT_SIZE.x, SUBMIT_SIZE.y, SUBMIT_SIZE.x / 10, "gray"); // ctx.fillRect(NEW_GAME_POS.x, NEW_GAME_POS.y, SUBMIT_SIZE.x, SUBMIT_SIZE.y);
+
 ctx.fillStyle = "white";
 ctx.font = "20px Georgia";
 ctx.fillText("New Game", NEW_GAME_POS.x, NEW_GAME_POS.y + 30);
