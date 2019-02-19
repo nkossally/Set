@@ -339,15 +339,6 @@ ctxPattern.beginPath();
 ctxPattern.moveTo(10, 10);
 ctxPattern.lineTo(0, 0);
 ctxPattern.closePath();
-var background = new Image();
-background.src = '../assets/images/images.png';
-var canvasBackground = document.createElement("canvas"); // canvasBackground.width = window.innerWidth;
-// canvasBackground.height = 4790;
-
-var ctxBackground = canvasBackground.getContext("2d");
-var backgroundPattern = ctxBackground.createPattern(background, "repeat");
-ctxBackground.fillStyle = backgroundPattern;
-ctxBackground.fillRect(0, 0, 300, 300);
 canvas.addEventListener("click", handleClick);
 ctx.beginPath(); // ctx.moveTo(100,100);
 // ctx.arcTo(0,100,0,0,30);
@@ -723,6 +714,19 @@ drawOutOfPlayCard = function drawOutOfPlayCard() {
   };
   drawCard(pos, scale);
   drawSymbols(deck.outOfPlayCards[idx], pos, scale);
+};
+
+var background = new Image();
+background.src = './assets/images/images.png';
+
+background.onload = function () {
+  var canvasBackground = document.getElementById("canvas-3");
+  canvasBackground.width = 900;
+  canvasBackground.height = 900;
+  var ctxBackground = canvasBackground.getContext("2d");
+  var backgroundPattern = ctxBackground.createPattern(background, "repeat");
+  ctxBackground.fillStyle = backgroundPattern;
+  ctxBackground.fillRect(0, 0, 900, 900);
 };
 
 /***/ })
