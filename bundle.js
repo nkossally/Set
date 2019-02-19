@@ -285,11 +285,24 @@ var Deck = __webpack_require__(/*! ./deck.js */ "./lib/deck.js");
 
 var Game = __webpack_require__(/*! ./game.js */ "./lib/game.js");
 
+showCount = 0;
+var background = new Image();
+background.src = './assets/images/escher.png';
+var canvasBackground = document.getElementById("canvas-3");
+var ctxBackground = canvasBackground.getContext("2d"); // let backgroundPattern;
+// background.onload=function(){
+// canvasBackground.width = 900;
+// // canvasBackground.height = 900;
+// backgroundPattern = ctxBackground.createPattern(background, "repeat");
+// ctxBackground.fillStyle = backgroundPattern;
+// ctxBackground.fillRect(0,0, 900, 900);
+
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 canvas.width = 1500;
-canvas.height = 4790;
-ctx.fillStyle = "#06e4f8";
+canvas.height = 2000; // ctx.fillStyle = "#06e4f8";
+
+ctx.fillStyle = "#c5c3c3";
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 var CARD_SIZE = {
   x: 100,
@@ -340,20 +353,6 @@ ctxPattern.moveTo(10, 10);
 ctxPattern.lineTo(0, 0);
 ctxPattern.closePath();
 canvas.addEventListener("click", handleClick);
-ctx.beginPath(); // ctx.moveTo(100,100);
-// ctx.arcTo(0,100,0,0,30);
-// ctx.arcTo(0,0,100,0,30);
-// ctx.arcTo(100,0,100,100,30);
-// ctx.arcTo(100,100,0,100,30);
-// ctx.fillStyle = "black";
-// ctx.fill();
-// ctx.moveTo(100, 200);
-// ctx.arcTo(0,200,0,0,20);
-// ctx.arcTo(0,0,100,0,20);
-// ctx.arcTo(100,0,100,100,20);
-// ctx.arcTo(100,200,0,100,20);
-// ctx.fillStyle = "black";
-// ctx.fill();
 
 drawRoundedRec = function drawRoundedRec(pos, width, length, radius, color) {
   ctx.beginPath();
@@ -424,7 +423,30 @@ drawSymbols = function drawSymbols(card, pos, scale) {
   if (card.symbol === "oval") drawOvals(card, pos, scale);
 };
 
-drawNullCard = function drawNullCard(pos, scale) {};
+drawNullCard = function drawNullCard(pos, scale) {
+  radius = CARD_SIZE.x / 10;
+  width = CARD_SIZE.x;
+  length = CARD_SIZE.y;
+  ctxBackground;
+  ctx.beginPath();
+  ctx.moveTo(pos.x + radius, pos.y);
+  ctx.lineTo(pos.x + width - radius, pos.y, radius);
+  ctx.arcTo(pos.x + width, pos.y, pos.x + width, pos.y + radius, radius);
+  ctx.lineTo(pos.x + width, pos.y + length - radius);
+  ctx.arcTo(pos.x + width, pos.y + length, pos.x + width - radius, pos.y + length, radius);
+  ctx.lineTo(pos.x + radius, pos.y + length);
+  ctx.arcTo(pos.x, pos.y + length, pos.x, pos.y + length - radius, radius);
+  ctx.lineTo(pos.x, pos.y + radius);
+  ctx.arcTo(pos.x, pos.y, pos.x + radius, pos.y, radius);
+  ctx.fillStyle = ctx.createPattern(background, "repeat");
+  ctx.fill(); // if(card.shading === "striped") {
+  //   ctxPattern.strokeStyle = card.color;
+  //   ctxPattern.stroke();
+  //   ctx.fillStyle = ctx.createPattern(canvasPattern,"repeat");
+  //   ctx.stroke();
+  //   ctx.fill(); 
+  // }
+};
 
 drawRectangles = function drawRectangles(card, pos, scale) {
   if (card.number === 1) {
@@ -539,7 +561,7 @@ handleSelect = function handleSelect(cx, cy) {
     if (cx >= pos.x && cx <= pos.x + CARD_SIZE.x && cy >= pos.y && cy <= pos.y + CARD_SIZE.y) {
       var card = deck.faceUpCards[i];
 
-      if (card) {
+      if (card && card.symbol !== undefined) {
         if (deck.selected.includes(card)) {
           deck.selected.splice(deck.selected.indexOf(card), 1); // ctx.clearRect(pos.x, pos.y, CARD_SIZE.x, CARD_SIZE.y);
           // drawSymbols(card, pos);
@@ -604,17 +626,6 @@ highlightSelected = function highlightSelected() {
   });
 };
 
-ctx.fillStyle = "gray";
-drawRoundedRec(SUBMIT_POS, SUBMIT_SIZE.x, SUBMIT_SIZE.y, SUBMIT_SIZE.x / 10, "gray");
-ctx.fillStyle = "white";
-ctx.font = "20px Georgia";
-ctx.fillText("Submit", SUBMIT_POS.x, SUBMIT_POS.y + 30);
-ctx.fillStyle = "gray";
-drawRoundedRec(DEAL_THREE_MORE_POS, SUBMIT_SIZE.x, SUBMIT_SIZE.y, SUBMIT_SIZE.x / 10, "gray");
-ctx.fillStyle = "white";
-ctx.font = "20px Georgia";
-ctx.fillText("Deal Three More", DEAL_THREE_MORE_POS.x, DEAL_THREE_MORE_POS.y + 30);
-
 handleDealThreeMore = function handleDealThreeMore(cx, cy) {
   if (cx >= DEAL_THREE_MORE_POS.x && cx <= DEAL_THREE_MORE_POS.x + SUBMIT_SIZE.x && cy >= DEAL_THREE_MORE_POS.y && cy <= DEAL_THREE_MORE_POS.y + SUBMIT_SIZE.y && deck.faceUpCount <= 12) {
     for (var i = 0; i < 15; i++) {
@@ -638,7 +649,8 @@ handleShowMove = function handleShowMove(cx, cy) {
     var selections = game.findAllValidSelections(deck.faceUpCards);
 
     if (selections.length > 0) {
-      selections[0].forEach(function (card) {
+      showCount += 1;
+      selections[showCount % selections.length].forEach(function (card) {
         idx = deck.faceUpCards.indexOf(card);
         var pos = {
           x: IN_SET.x + Math.floor(idx / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
@@ -669,6 +681,11 @@ handleNewGame = function handleNewGame(cx, cy) {
 };
 
 newGame = function newGame() {
+  ctx.fillStyle = "#BDF3FF"; // ctx.fillStyle = "#06e4f8";
+  // ctx.fillStyle = "#c5c3c3";
+
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  drawButtons();
   deck = new Deck();
   game = new Game();
   deck.createDeck();
@@ -698,35 +715,35 @@ showMoveButton = function showMoveButton() {
   ctx.fillText("Show Move", SHOW_VALID_POS.x, SHOW_VALID_POS.y + 30);
 };
 
-ctx.fillStyle = "gray";
-drawRoundedRec(NEW_GAME_POS, SUBMIT_SIZE.x, SUBMIT_SIZE.y, SUBMIT_SIZE.x / 10, "gray"); // ctx.fillRect(NEW_GAME_POS.x, NEW_GAME_POS.y, SUBMIT_SIZE.x, SUBMIT_SIZE.y);
-
-ctx.fillStyle = "white";
-ctx.font = "20px Georgia";
-ctx.fillText("New Game", NEW_GAME_POS.x, NEW_GAME_POS.y + 30);
-
 drawOutOfPlayCard = function drawOutOfPlayCard() {
   scale = 1 / 3;
   idx = deck.outOfPlayCards.length - 1;
+  var column = Math.floor(idx / 27) * ((CARD_SIZE.x + CARD_MARGIN.x) * scale * 3 + 5);
   var pos = {
-    x: OUT_OF_PLAY_POS.x + idx % 3 * (CARD_SIZE.x + CARD_MARGIN.x) * scale,
-    y: OUT_OF_PLAY_POS.y + Math.floor(idx / 3) * (CARD_SIZE.y + CARD_MARGIN.y) * scale
+    x: OUT_OF_PLAY_POS.x + idx % 3 * (CARD_SIZE.x + CARD_MARGIN.x) * scale + column,
+    y: OUT_OF_PLAY_POS.y + Math.floor(idx / 3) % 9 * (CARD_SIZE.y + CARD_MARGIN.y) * scale
   };
   drawCard(pos, scale);
   drawSymbols(deck.outOfPlayCards[idx], pos, scale);
 };
 
-var background = new Image();
-background.src = './assets/images/images.png';
-
-background.onload = function () {
-  var canvasBackground = document.getElementById("canvas-3");
-  canvasBackground.width = 900;
-  canvasBackground.height = 900;
-  var ctxBackground = canvasBackground.getContext("2d");
-  var backgroundPattern = ctxBackground.createPattern(background, "repeat");
-  ctxBackground.fillStyle = backgroundPattern;
-  ctxBackground.fillRect(0, 0, 900, 900);
+drawButtons = function drawButtons() {
+  ctx.fillStyle = "gray";
+  drawRoundedRec(SUBMIT_POS, SUBMIT_SIZE.x, SUBMIT_SIZE.y, SUBMIT_SIZE.x / 10, "gray");
+  ctx.fillStyle = "white";
+  ctx.font = "20px Georgia";
+  ctx.fillText("Submit", SUBMIT_POS.x, SUBMIT_POS.y + 30);
+  ctx.fillStyle = "gray";
+  drawRoundedRec(DEAL_THREE_MORE_POS, SUBMIT_SIZE.x, SUBMIT_SIZE.y, SUBMIT_SIZE.x / 10, "gray");
+  ctx.fillStyle = "white";
+  ctx.font = "20px Georgia";
+  ctx.fillText("Deal Three More", DEAL_THREE_MORE_POS.x, DEAL_THREE_MORE_POS.y + 30);
+  ctx.fillStyle = "gray";
+  drawRoundedRec(NEW_GAME_POS, SUBMIT_SIZE.x, SUBMIT_SIZE.y, SUBMIT_SIZE.x / 10, "gray");
+  ctx.fillStyle = "white";
+  ctx.font = "20px Georgia";
+  ctx.fillText("New Game", NEW_GAME_POS.x, NEW_GAME_POS.y + 30);
+  showMoveButton();
 };
 
 /***/ })
