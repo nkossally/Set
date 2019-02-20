@@ -289,29 +289,22 @@ showCount = 0;
 var background = new Image();
 background.src = './assets/images/escher.png';
 var canvasBackground = document.getElementById("canvas-3");
-var ctxBackground = canvasBackground.getContext("2d"); // let backgroundPattern;
-// background.onload=function(){
-// canvasBackground.width = 900;
-// // canvasBackground.height = 900;
-// backgroundPattern = ctxBackground.createPattern(background, "repeat");
-// ctxBackground.fillStyle = backgroundPattern;
-// ctxBackground.fillRect(0,0, 900, 900);
-
+var ctxBackground = canvasBackground.getContext("2d");
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 canvas.width = 1500;
 canvas.height = 2000; // ctx.fillStyle = "#06e4f8";
+// ctx.fillStyle = "#c5c3c3";
+// ctx.fillRect(0, 0, canvas.width, canvas.height);  
 
-ctx.fillStyle = "#c5c3c3";
-ctx.fillRect(0, 0, canvas.width, canvas.height);
 var CARD_SIZE = {
-  x: 100,
-  y: 140
+  x: 100 * 130 / 140,
+  y: 140 * 130 / 140
 };
 var SYMBOL_SIZE = CARD_SIZE.y * 3 / 14;
 var IN_SET = {
   x: 10,
-  y: 10
+  y: 80
 };
 var CARD_MARGIN = {
   x: 20,
@@ -367,13 +360,15 @@ drawRoundedRec = function drawRoundedRec(pos, width, length, radius, color) {
   ctx.arcTo(pos.x, pos.y, pos.x + radius, pos.y, radius);
   ctx.fillStyle = color;
   ctx.fill();
+  ctx.closePath();
 }; // ctx.fillStyle = "white";
 // ctx.fillRect(100, 100, 5, 5);  
 
 
-drawCard = function drawCard(pos, scale) {
-  ctx.fillStyle = "white";
-  drawRoundedRec(pos, CARD_SIZE.x * scale, CARD_SIZE.y * scale, CARD_SIZE.x * scale / 10, "white");
+drawCard = function drawCard(pos, scale, color) {
+  // ctx.fillStyle = "white";
+  drawRoundedRec(pos, CARD_SIZE.x * scale, CARD_SIZE.y * scale, CARD_SIZE.x * scale / 10, color); // ctx.fillStyle = "yellow";
+  // ctx.stroke();
 };
 
 drawDiamond = function drawDiamond(card, pos, scale) {
@@ -417,35 +412,10 @@ colorSymbols = function colorSymbols(card) {
 };
 
 drawSymbols = function drawSymbols(card, pos, scale) {
-  if (card.symbol === undefined) drawNullCard(pos, scale);
+  if (card.symbol === undefined) drawCard(pos, 1, ctx.createPattern(background, "repeat"));
   if (card.symbol === "rectangle") drawRectangles(card, pos, scale);
   if (card.symbol === "diamond") drawDiamonds(card, pos, scale);
   if (card.symbol === "oval") drawOvals(card, pos, scale);
-};
-
-drawNullCard = function drawNullCard(pos, scale) {
-  radius = CARD_SIZE.x / 10;
-  width = CARD_SIZE.x;
-  length = CARD_SIZE.y;
-  ctxBackground;
-  ctx.beginPath();
-  ctx.moveTo(pos.x + radius, pos.y);
-  ctx.lineTo(pos.x + width - radius, pos.y, radius);
-  ctx.arcTo(pos.x + width, pos.y, pos.x + width, pos.y + radius, radius);
-  ctx.lineTo(pos.x + width, pos.y + length - radius);
-  ctx.arcTo(pos.x + width, pos.y + length, pos.x + width - radius, pos.y + length, radius);
-  ctx.lineTo(pos.x + radius, pos.y + length);
-  ctx.arcTo(pos.x, pos.y + length, pos.x, pos.y + length - radius, radius);
-  ctx.lineTo(pos.x, pos.y + radius);
-  ctx.arcTo(pos.x, pos.y, pos.x + radius, pos.y, radius);
-  ctx.fillStyle = ctx.createPattern(background, "repeat");
-  ctx.fill(); // if(card.shading === "striped") {
-  //   ctxPattern.strokeStyle = card.color;
-  //   ctxPattern.stroke();
-  //   ctx.fillStyle = ctx.createPattern(canvasPattern,"repeat");
-  //   ctx.stroke();
-  //   ctx.fill(); 
-  // }
 };
 
 drawRectangles = function drawRectangles(card, pos, scale) {
@@ -634,7 +604,7 @@ handleDealThreeMore = function handleDealThreeMore(cx, cy) {
           x: IN_SET.x + Math.floor(i / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
           y: IN_SET.y + i % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
         };
-        drawCard(pos, 1);
+        drawCard(pos, 1, "white");
         drawSymbols(deck.dealCard(i), pos, 1);
       }
     }
@@ -650,7 +620,8 @@ handleShowMove = function handleShowMove(cx, cy) {
 
     if (selections.length > 0) {
       showCount += 1;
-      selections[showCount % selections.length].forEach(function (card) {
+      selectIndex = showCount % selections.length;
+      selections[selectIndex].forEach(function (card) {
         idx = deck.faceUpCards.indexOf(card);
         var pos = {
           x: IN_SET.x + Math.floor(idx / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
@@ -658,7 +629,7 @@ handleShowMove = function handleShowMove(cx, cy) {
         };
         highlightCard(pos);
       });
-      deck.selected = selections[0];
+      deck.selected = selections[selectIndex];
     }
   }
 };
@@ -669,7 +640,7 @@ renderBoard = function renderBoard() {
       x: IN_SET.x + Math.floor(i / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
       y: IN_SET.y + i % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
     };
-    drawCard(pos, 1);
+    drawCard(pos, 1, "white");
     drawSymbols(deck.faceUpCards[i], pos, 1);
   }
 };
@@ -723,7 +694,7 @@ drawOutOfPlayCard = function drawOutOfPlayCard() {
     x: OUT_OF_PLAY_POS.x + idx % 3 * (CARD_SIZE.x + CARD_MARGIN.x) * scale + column,
     y: OUT_OF_PLAY_POS.y + Math.floor(idx / 3) % 9 * (CARD_SIZE.y + CARD_MARGIN.y) * scale
   };
-  drawCard(pos, scale);
+  drawCard(pos, scale, "white");
   drawSymbols(deck.outOfPlayCards[idx], pos, scale);
 };
 
