@@ -293,10 +293,7 @@ var ctxBackground = canvasBackground.getContext("2d");
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 canvas.width = 1500;
-canvas.height = 2000; // ctx.fillStyle = "#06e4f8";
-// ctx.fillStyle = "#c5c3c3";
-// ctx.fillRect(0, 0, canvas.width, canvas.height);  
-
+canvas.height = window.innerHeight;
 var CARD_SIZE = {
   x: 100 * 130 / 140,
   y: 140 * 130 / 140
@@ -322,9 +319,13 @@ var DEAL_THREE_MORE_POS = {
   x: SUBMIT_POS.x,
   y: SUBMIT_POS.y + SUBMIT_SIZE.y + 50
 };
-var SHOW_VALID_POS = {
+var SHOW_MOVE_POS = {
   x: DEAL_THREE_MORE_POS.x,
   y: DEAL_THREE_MORE_POS.y + SUBMIT_SIZE.y + 50
+};
+var SHOW_VALID_POS = {
+  x: SHOW_MOVE_POS.x,
+  y: SHOW_MOVE_POS.y + SUBMIT_SIZE.y + 50
 };
 var NEW_GAME_POS = {
   x: SHOW_VALID_POS.x,
@@ -367,8 +368,9 @@ drawRoundedRec = function drawRoundedRec(pos, width, length, radius, color) {
 
 drawCard = function drawCard(pos, scale, color) {
   // ctx.fillStyle = "white";
-  drawRoundedRec(pos, CARD_SIZE.x * scale, CARD_SIZE.y * scale, CARD_SIZE.x * scale / 10, color); // ctx.fillStyle = "yellow";
-  // ctx.stroke();
+  drawRoundedRec(pos, CARD_SIZE.x * scale, CARD_SIZE.y * scale, CARD_SIZE.x * scale / 10, color);
+  ctx.strokeStyle = "#f8cdbf";
+  ctx.stroke();
 };
 
 drawDiamond = function drawDiamond(card, pos, scale) {
@@ -575,7 +577,7 @@ handleSubmit = function handleSubmit(cx, cy) {
     }
   }
 
-  showMoveButton();
+  showNumberOfMoves();
 };
 
 highlightCard = function highlightCard(pos) {
@@ -610,11 +612,11 @@ handleDealThreeMore = function handleDealThreeMore(cx, cy) {
     }
   }
 
-  showMoveButton();
+  showNumberOfMoves();
 };
 
 handleShowMove = function handleShowMove(cx, cy) {
-  if (cx >= SHOW_VALID_POS.x && cx <= SHOW_VALID_POS.x + SUBMIT_SIZE.x && cy >= SHOW_VALID_POS.y && cy <= SHOW_VALID_POS.y + SUBMIT_SIZE.y) {
+  if (cx >= SHOW_MOVE_POS.x && cx <= SHOW_MOVE_POS.x + SUBMIT_SIZE.x && cy >= SHOW_MOVE_POS.y && cy <= SHOW_MOVE_POS.y + SUBMIT_SIZE.y) {
     renderBoard();
     var selections = game.findAllValidSelections(deck.faceUpCards);
 
@@ -652,10 +654,22 @@ handleNewGame = function handleNewGame(cx, cy) {
 };
 
 newGame = function newGame() {
-  ctx.fillStyle = "#BDF3FF"; // ctx.fillStyle = "#06e4f8";
-  // ctx.fillStyle = "#c5c3c3";
-
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#e59fb8";
+  ctx.fillRect(0, 0, canvas.width, 50);
+  ctx.strokeStyle = "#e59fb8";
+  ctx.fillRect(0, 560, canvas.width, window.innerHeight);
+  ctx.fillStyle = "#f8cdbf";
+  ctx.fillRect(0, 50, canvas.width, 510);
+  ctx.fillStyle = "#BDF3FF";
+  ctx.fillRect(IN_SET.x / 2, IN_SET.y - 15, OUT_OF_PLAY_POS.x + 1 / 3 * CARD_SIZE.x * 9 + 1 / 3 * CARD_MARGIN.x * 6 + IN_SET.x / 2 + 20, 3 * CARD_SIZE.y + 2 * CARD_MARGIN.y + 40);
+  ctx.rect(IN_SET.x / 2, IN_SET.y - 15, OUT_OF_PLAY_POS.x + 1 / 3 * CARD_SIZE.x * 9 + 1 / 3 * CARD_MARGIN.x * 6 + IN_SET.x / 2 + 20, 3 * CARD_SIZE.y + 2 * CARD_MARGIN.y + 40);
+  ctx.stroke();
+  ctx.fillStyle = "#BDF3FF";
+  ctx.font = "60px Georgia";
+  ctx.fillText("SET", 300, 50);
+  ctx.font = "40px Georgia";
+  ctx.fillText("by Najja Kossally", 650, 50);
   drawButtons();
   deck = new Deck();
   game = new Game();
@@ -674,16 +688,23 @@ newGame = function newGame() {
 
 window.onload = function () {
   newGame();
-  showMoveButton();
+  showNumberOfMoves();
+};
+
+showNumberOfMoves = function showNumberOfMoves() {
+  ctx.fillStyle = "gray";
+  drawRoundedRec(SHOW_VALID_POS, SUBMIT_SIZE.x, SUBMIT_SIZE.y, SUBMIT_SIZE.x / 10, "gray");
+  ctx.fillStyle = "white";
+  ctx.font = "19px Georgia";
+  ctx.fillText("".concat(game.findAllValidSelections(deck.faceUpCards).length), SHOW_VALID_POS.x + 68, SHOW_VALID_POS.y + 19); // ctx.fillText("Show Move", SHOW_MOVE_POS.x, SHOW_MOVE_POS.y+30);
 };
 
 showMoveButton = function showMoveButton() {
   ctx.fillStyle = "gray";
-  drawRoundedRec(SHOW_VALID_POS, SUBMIT_SIZE.x, SUBMIT_SIZE.y, SUBMIT_SIZE.x / 10, "gray");
+  drawRoundedRec(SHOW_MOVE_POS, SUBMIT_SIZE.x, SUBMIT_SIZE.y, SUBMIT_SIZE.x / 10, "gray");
   ctx.fillStyle = "white";
-  ctx.font = "20px Georgia";
-  ctx.fillText("".concat(game.findAllValidSelections(deck.faceUpCards).length), SHOW_VALID_POS.x, SHOW_VALID_POS.y + 10);
-  ctx.fillText("Show Move", SHOW_VALID_POS.x, SHOW_VALID_POS.y + 30);
+  ctx.font = "19px Georgia";
+  ctx.fillText("Show Move", SHOW_MOVE_POS.x + 25, SHOW_MOVE_POS.y + 21);
 };
 
 drawOutOfPlayCard = function drawOutOfPlayCard() {
@@ -702,19 +723,20 @@ drawButtons = function drawButtons() {
   ctx.fillStyle = "gray";
   drawRoundedRec(SUBMIT_POS, SUBMIT_SIZE.x, SUBMIT_SIZE.y, SUBMIT_SIZE.x / 10, "gray");
   ctx.fillStyle = "white";
-  ctx.font = "20px Georgia";
-  ctx.fillText("Submit", SUBMIT_POS.x, SUBMIT_POS.y + 30);
+  ctx.font = "19px Georgia";
+  ctx.fillText("Submit", SUBMIT_POS.x + 42, SUBMIT_POS.y + 22);
   ctx.fillStyle = "gray";
   drawRoundedRec(DEAL_THREE_MORE_POS, SUBMIT_SIZE.x, SUBMIT_SIZE.y, SUBMIT_SIZE.x / 10, "gray");
   ctx.fillStyle = "white";
-  ctx.font = "20px Georgia";
-  ctx.fillText("Deal Three More", DEAL_THREE_MORE_POS.x, DEAL_THREE_MORE_POS.y + 30);
+  ctx.font = "19px Georgia";
+  ctx.fillText("Deal Three More", DEAL_THREE_MORE_POS.x + 5, DEAL_THREE_MORE_POS.y + 21);
   ctx.fillStyle = "gray";
   drawRoundedRec(NEW_GAME_POS, SUBMIT_SIZE.x, SUBMIT_SIZE.y, SUBMIT_SIZE.x / 10, "gray");
   ctx.fillStyle = "white";
-  ctx.font = "20px Georgia";
-  ctx.fillText("New Game", NEW_GAME_POS.x, NEW_GAME_POS.y + 30);
+  ctx.font = "19px Georgia";
+  ctx.fillText("New Game", NEW_GAME_POS.x + 30, NEW_GAME_POS.y + 21);
   showMoveButton();
+  showNumberOfMoves();
 };
 
 /***/ })
