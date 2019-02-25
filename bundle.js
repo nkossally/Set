@@ -180,6 +180,8 @@ function () {
       } else {
         this.dealNullCard(idx);
       }
+
+      return idx;
     }
   }]);
 
@@ -362,8 +364,8 @@ var OUT_OF_PLAY_POS = {
   y: IN_SET.y
 };
 var YOU_WIN_POS = {
-  x: 150,
-  y: 350
+  x: 195,
+  y: 250
 };
 var YOU_WIN_SIZE = {
   x: 300,
@@ -407,11 +409,34 @@ drawButton = function drawButton(pos, text, textPos, color) {
 // ctx.fillRect(100, 100, 5, 5);  
 
 
-drawCard = function drawCard(pos, scale, color) {
-  // ctx.fillStyle = "white";
-  drawRoundedRec(pos, CARD_SIZE.x * scale, CARD_SIZE.y * scale, CARD_SIZE.x * scale / 10, color);
-  ctx.strokeStyle = "#f8cdbf";
-  ctx.stroke();
+animateDrawCard = function (_animateDrawCard) {
+  function animateDrawCard(_x, _x2, _x3, _x4, _x5, _x6) {
+    return _animateDrawCard.apply(this, arguments);
+  }
+
+  animateDrawCard.toString = function () {
+    return _animateDrawCard.toString();
+  };
+
+  return animateDrawCard;
+}(function (pos, startScale, endScale, color, card, direction) {
+  if (startScale !== endScale) {
+    drawCard(pos, startScale, color, card);
+    direction === "increase" ? startScale += .50 : startScale -= .50;
+    requestAnimationFrame(function () {
+      animateDrawCard(pos, startScale, endScale, color, card, direction);
+    });
+  }
+});
+
+drawCard = function drawCard(pos, scale, color, card) {
+  if (scale >= 0) {
+    clearCard(pos);
+    drawRoundedRec(pos, CARD_SIZE.x * scale, CARD_SIZE.y * scale, CARD_SIZE.x * scale / 10, color);
+    ctx.strokeStyle = "#f8cdbf";
+    ctx.stroke();
+    if (card) drawSymbols(card, pos, scale);
+  }
 };
 
 drawDiamond = function drawDiamond(card, pos, scale) {
@@ -452,12 +477,19 @@ colorSymbols = function colorSymbols(card) {
     ctx.stroke();
     ctx.fill();
   }
-};
+}; // animateDrawSymbols=(card, pos, startScale, endScale)=>{
+//   if(startScale !== 1){
+//     startScale += .;
+//     drawSymbols(card, pos, startScale);
+//     requestAnimationFrame(function(){animateDrawCard(card, pos, startScale, endScale)});
+//   }
+// }
+
 
 drawSymbols = function drawSymbols(card, pos, scale) {
   if (card.symbol === undefined) {
     ctx.globalAlpha = .5;
-    drawCard(pos, 1, ctx.createPattern(background, "repeat"));
+    drawCard(pos, scale, ctx.createPattern(background, "repeat"));
     ctx.globalAlpha = 1;
   }
 
@@ -594,6 +626,7 @@ handleSelect = function handleSelect(cx, cy) {
           highlightSelected();
         } else {
           deck.selected.push(deck.faceUpCards[i]);
+          renderBoard();
           highlightSelected();
         }
       }
@@ -606,9 +639,11 @@ handleSelect = function handleSelect(cx, cy) {
           y: IN_SET.y + _idx % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
         };
         deck.selected.splice(2, 1); // ctx.clearRect(oldPos.x, oldPos.y, CARD_SIZE.x, CARD_SIZE.y);
+        // drawCard(oldPos, 1, "white");
+        // drawSymbols(deck.faceUpCards[idx], oldPos, 1);
 
-        drawCard(oldPos, 1, "white");
-        drawSymbols(deck.faceUpCards[_idx], oldPos, 1);
+        renderBoard();
+        highlightSelected();
       }
 
       break;
@@ -632,24 +667,41 @@ handleSubmit = function handleSubmit(cx, cy) {
     if (deck.selected.length === 3) {
       if (game.isValidSelection(deck.selected)) {
         deck.selected.forEach(function (card) {
-          deck.removeCard(card);
-          drawOutOfPlayCards();
+          var idx = deck.removeCard(card);
+          var pos = {
+            x: IN_SET.x + Math.floor(idx / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
+            y: IN_SET.y + idx % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
+          }; // animateDrawCard(pos, 0, 1, "white");          
+
+          animateDrawCard(pos, 1, 0, "white", card, "decrease");
+          setTimeout(function () {
+            animateDrawCard(pos, 0, 1, "white", deck.faceUpCards[idx], "increase");
+          }, 30);
+          setTimeout(function () {
+            afterCardAnimation(card, pos, 1);
+          }, 55);
         });
         deck.selected = [];
         renderBoard();
         score += 1;
+        drawOutOfPlayCards();
         showNumberOfMoves();
         showScore();
-        if (score === 10) showWin();
+        setTimeout(function () {
+          if (score === 10) showWin();
+        }, 100);
       }
     }
   }
 };
 
 showWin = function showWin() {
-  ctx.fillStyle = "#847b7e";
-  ctx.font = "50px Georgia";
-  ctx.fillText("You win!", YOU_WIN_POS.x, YOU_WIN_POS.y);
+  ctx.fillStyle = "#ebad07";
+  ctx.font = "100px Georgia";
+  ctx.fillText("You", YOU_WIN_POS.x, YOU_WIN_POS.y);
+  ctx.fillText("win!", YOU_WIN_POS.x - 5, YOU_WIN_POS.y + 100);
+  ctx.font = "20px Georgia";
+  ctx.fillText("Click New Game to start a new game!", YOU_WIN_POS.x - 80, YOU_WIN_POS.y + 150);
 };
 
 highlightCard = function highlightCard(pos, color) {
@@ -721,12 +773,9 @@ drawInstructions = function drawInstructions() {
     x: INSTRUCTIONS_POS.x + 200 + (CARD_SIZE.x + CARD_MARGIN.x) * 1 / 2 * 2,
     y: INSTRUCTIONS_POS.y + 365
   };
-  drawCard(pos1, 1 / 2, "white");
-  drawSymbols(card1, pos1, 1 / 2);
-  drawCard(pos2, 1 / 2, "white");
-  drawSymbols(card2, pos2, 1 / 2);
-  drawCard(pos3, 1 / 2, "white");
-  drawSymbols(card3, pos3, 1 / 2);
+  drawCard(pos1, 1 / 2, "white", card1);
+  drawCard(pos2, 1 / 2, "white", card2);
+  drawCard(pos3, 1 / 2, "white", card3);
   ctx.fillStyle = "#514e4f";
   ctx.fillText("    And this next set has different numbers, symbols, colors and shading.", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 470);
   var card4 = deck.card("#0ef691", 'oval', 1, 'striped');
@@ -744,12 +793,9 @@ drawInstructions = function drawInstructions() {
     x: INSTRUCTIONS_POS.x + 200 + (CARD_SIZE.x + CARD_MARGIN.x) * 1 / 2 * 2,
     y: INSTRUCTIONS_POS.y + 495
   };
-  drawCard(pos4, 1 / 2, "white");
-  drawSymbols(card4, pos4, 1 / 2);
-  drawCard(pos5, 1 / 2, "white");
-  drawSymbols(card5, pos5, 1 / 2);
-  drawCard(pos6, 1 / 2, "white");
-  drawSymbols(card6, pos6, 1 / 2);
+  drawCard(pos4, 1 / 2, "white", card4);
+  drawCard(pos5, 1 / 2, "white", card5);
+  drawCard(pos6, 1 / 2, "white", card6);
   ctx.fillStyle = "#514e4f";
   ctx.fillText("                         The game ends when you find ten sets.", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 600);
 };
@@ -775,6 +821,21 @@ handleCloseInstructions = function handleCloseInstructions(cx, cy) {
   }
 };
 
+afterCardAnimation = function afterCardAnimation(card, pos, scale) {
+  drawSymbols(card, pos, scale);
+  renderBackground();
+  renderBoard();
+  drawOutOfPlayCards();
+  highlightSelected();
+};
+
+clearCard = function clearCard(pos) {
+  drawRoundedRec({
+    x: pos.x - 1,
+    y: pos.y - 1
+  }, CARD_SIZE.x + 2, CARD_SIZE.y + 2, CARD_SIZE.x / 10, "#BDF3FF");
+};
+
 handleDealThreeMore = function handleDealThreeMore(cx, cy) {
   if (cx >= DEAL_THREE_MORE_POS.x && cx <= DEAL_THREE_MORE_POS.x + SUBMIT_SIZE.x && cy >= DEAL_THREE_MORE_POS.y && cy <= DEAL_THREE_MORE_POS.y + SUBMIT_SIZE.y) {
     drawButton(DEAL_THREE_MORE_POS, "Deal Three More", {
@@ -791,12 +852,22 @@ handleDealThreeMore = function handleDealThreeMore(cx, cy) {
     if (deck.faceUpCount <= 12) {
       for (var i = 0; i < 15; i++) {
         if (deck.faceUpCards[i].symbol === undefined) {
-          var pos = {
-            x: IN_SET.x + Math.floor(i / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
-            y: IN_SET.y + i % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
-          };
-          drawCard(pos, 1, "white");
-          drawSymbols(deck.dealCard(i), pos, 1);
+          (function () {
+            var pos = {
+              x: IN_SET.x + Math.floor(i / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
+              y: IN_SET.y + i % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
+            };
+            var prevCard = deck.faceUpCards[i];
+            var card = deck.dealCard(i);
+            animateDrawCard(pos, 1, 0, "white", prevCard, "decrease");
+            setTimeout(function () {
+              animateDrawCard(pos, 0, 1, "white", card, "increase");
+            }, 30); // animateDrawCard(pos, 0, 1, "white", "increase");          
+
+            setTimeout(function () {
+              afterCardAnimation(card, pos, 1);
+            }, 55);
+          })();
         }
       }
 
@@ -842,8 +913,7 @@ renderBoard = function renderBoard() {
       x: IN_SET.x + Math.floor(i / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
       y: IN_SET.y + i % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
     };
-    drawCard(pos, 1, "white");
-    drawSymbols(deck.faceUpCards[i], pos, 1);
+    drawCard(pos, 1, "white", deck.faceUpCards[i]);
   }
 };
 
@@ -887,16 +957,16 @@ renderBackground = function renderBackground() {
   ctx.strokeStyle = "#e59fb8";
   ctx.fillRect(0, 560, canvas.width, window.innerHeight);
   ctx.fillStyle = "#f8cdbf";
-  ctx.fillRect(0, 50, canvas.width, 510);
+  ctx.fillRect(0, 50, canvas.width, 520);
   ctx.fillStyle = "#BDF3FF";
   ctx.fillRect(IN_SET.x / 2, IN_SET.y - 15, OUT_OF_PLAY_POS.x + 1 / 3 * CARD_SIZE.x * 6 + 1 / 3 * CARD_MARGIN.x * 4 + IN_SET.x / 2 + 20, 3 * CARD_SIZE.y + 2 * CARD_MARGIN.y + 40);
   ctx.rect(IN_SET.x / 2, IN_SET.y - 15, OUT_OF_PLAY_POS.x + 1 / 3 * CARD_SIZE.x * 6 + 1 / 3 * CARD_MARGIN.x * 4 + IN_SET.x / 2 + 20, 3 * CARD_SIZE.y + 2 * CARD_MARGIN.y + 40);
   ctx.stroke();
   ctx.fillStyle = "#BDF3FF";
   ctx.font = "60px Georgia";
-  ctx.fillText("SET", 300, 50);
+  ctx.fillText("SET", 100, 50);
   ctx.font = "40px Georgia";
-  ctx.fillText("by Najja Kossally", 650, 50);
+  ctx.fillText("by Najja Kossally", 450, 50);
   drawButtons();
 };
 
@@ -920,8 +990,7 @@ drawOutOfPlayCards = function drawOutOfPlayCards() {
       x: OUT_OF_PLAY_POS.x + i % 3 * (CARD_SIZE.x + CARD_MARGIN.x) * scale + column,
       y: OUT_OF_PLAY_POS.y + Math.floor(i / 3) % 5 * (CARD_SIZE.y + CARD_MARGIN.y) * scale
     };
-    drawCard(pos, scale, "white");
-    drawSymbols(deck.outOfPlayCards[i], pos, scale);
+    drawCard(pos, scale, "white", deck.outOfPlayCards[i]);
   }
 };
 
