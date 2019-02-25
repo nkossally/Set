@@ -290,11 +290,11 @@ var score = 0;
 var instructionsShowing = false;
 var background = new Image();
 background.src = './assets/images/escher.png';
-var canvasBackground = document.getElementById("canvas-3");
+var canvasBackground = document.createElement("canvas");
 var ctxBackground = canvasBackground.getContext("2d");
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
-canvas.width = 1500;
+canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 var CARD_SIZE = {
   x: 100 * 130 / 140,
@@ -396,6 +396,13 @@ drawRoundedRec = function drawRoundedRec(pos, width, length, radius, color) {
   ctx.fillStyle = color;
   ctx.fill();
   ctx.closePath();
+};
+
+drawButton = function drawButton(pos, text, textPos, color) {
+  drawRoundedRec(pos, SUBMIT_SIZE.x, SUBMIT_SIZE.y, SUBMIT_SIZE.x / 10, color);
+  ctx.fillStyle = "white";
+  ctx.font = "19px Georgia";
+  ctx.fillText(text, pos.x + textPos.x, pos.y + textPos.y);
 }; // ctx.fillStyle = "white";
 // ctx.fillRect(100, 100, 5, 5);  
 
@@ -448,7 +455,12 @@ colorSymbols = function colorSymbols(card) {
 };
 
 drawSymbols = function drawSymbols(card, pos, scale) {
-  if (card.symbol === undefined) drawCard(pos, 1, ctx.createPattern(background, "repeat"));
+  if (card.symbol === undefined) {
+    ctx.globalAlpha = .5;
+    drawCard(pos, 1, ctx.createPattern(background, "repeat"));
+    ctx.globalAlpha = 1;
+  }
+
   if (card.symbol === "rectangle") drawRectangles(card, pos, scale);
   if (card.symbol === "diamond") drawDiamonds(card, pos, scale);
   if (card.symbol === "oval") drawOvals(card, pos, scale);
@@ -582,7 +594,7 @@ handleSelect = function handleSelect(cx, cy) {
           highlightSelected();
         } else {
           deck.selected.push(deck.faceUpCards[i]);
-          highlightCard(pos);
+          highlightSelected();
         }
       }
 
@@ -606,6 +618,17 @@ handleSelect = function handleSelect(cx, cy) {
 
 handleSubmit = function handleSubmit(cx, cy) {
   if (cx >= SUBMIT_POS.x && cx <= SUBMIT_POS.x + SUBMIT_SIZE.x && cy >= SUBMIT_POS.y && cy <= SUBMIT_POS.y + SUBMIT_SIZE.y) {
+    drawButton(SUBMIT_POS, "Submit", {
+      x: 42,
+      y: 22
+    }, "#d2cecf");
+    window.setTimeout(function () {
+      drawButton(SUBMIT_POS, "Submit", {
+        x: 42,
+        y: 22
+      }, "gray");
+    }, 100);
+
     if (deck.selected.length === 3) {
       if (game.isValidSelection(deck.selected)) {
         deck.selected.forEach(function (card) {
@@ -629,80 +652,115 @@ showWin = function showWin() {
   ctx.fillText("You win!", YOU_WIN_POS.x, YOU_WIN_POS.y);
 };
 
-highlightCard = function highlightCard(pos) {
-  ctx.globalAlpha = .3; // ctx.fillStyle = "yellow";
-
-  drawRoundedRec(pos, CARD_SIZE.x, CARD_SIZE.y, CARD_SIZE.x / 10, "yellow");
+highlightCard = function highlightCard(pos, color) {
+  ctx.globalAlpha = .3;
+  drawRoundedRec(pos, CARD_SIZE.x, CARD_SIZE.y, CARD_SIZE.x / 10, color);
   ctx.globalAlpha = 1;
 };
 
 highlightSelected = function highlightSelected() {
+  var color = game.isValidSelection(deck.selected) ? "#07eb1d" : "yellow";
   deck.selected.forEach(function (card) {
     idx = deck.faceUpCards.indexOf(card);
     var pos = {
       x: IN_SET.x + Math.floor(idx / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
       y: IN_SET.y + idx % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
     };
-    highlightCard(pos);
+    highlightCard(pos, color);
   });
+};
+
+drawInstructions = function drawInstructions() {
+  drawButton(INSTRUCTIONS_BUTTON_POS, "Instructions", {
+    x: 23,
+    y: 21
+  }, "gray");
+  ctx.fillStyle = "gray";
+  ctx.globalAlpha = .5;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  instructionsShowing = true;
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = "#BDF3FF";
+  ctx.strokeStyle = "#847b7e";
+  ctx.fillRect(INSTRUCTIONS_POS.x, INSTRUCTIONS_POS.y, INSTRUCTIONS_SIZE.x, INSTRUCTIONS_SIZE.y);
+  ctx.beginPath();
+  ctx.rect(INSTRUCTIONS_POS.x, INSTRUCTIONS_POS.y, INSTRUCTIONS_SIZE.x, INSTRUCTIONS_SIZE.y);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.fillStyle = "red";
+  ctx.fillRect(CLOSE_INSTRUCTIONS_POS.x, CLOSE_INSTRUCTIONS_POS.y, CLOSE_INSTRUCTIONS_SIZE.x, CLOSE_INSTRUCTIONS_SIZE.y);
+  ctx.fillStyle = "white";
+  ctx.font = "19px Georgia";
+  ctx.fillText("x", CLOSE_INSTRUCTIONS_POS.x + 6, CLOSE_INSTRUCTIONS_POS.y + 15);
+  ctx.fillStyle = "#514e4f";
+  ctx.fillText("                                               Instructions:", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 50);
+  ctx.font = "18px Georgia";
+  ctx.fillText("   The object of each round of Set is to find a ‘set’ of three cards from the", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 90);
+  ctx.fillText("      available face up cards. Each card has four features (color, symbol,", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 115);
+  ctx.fillText("   number and shading). In a proper ‘set,’ for each feature, all three cards", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 140);
+  ctx.fillText("     have the same variation of the feature, or different variations of the", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 165);
+  ctx.fillText("                feature. The variations of each feature are as follows:", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 190);
+  ctx.fillText("                              1. Color: red, green, or blue.", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 215);
+  ctx.fillText("                              2. Symbol: ovals, rectangles, or diamonds.", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 240);
+  ctx.fillText("                              3. Number: one, two, or three symbols. ", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 265);
+  ctx.fillText("                              4. Shading: solid, open, or striped.", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 290);
+  ctx.fillText(" In the set below, the cards have different numbers and symbols, and the", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 315);
+  ctx.fillText("                                   same color and shading.", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 340);
+  var card1 = deck.card("#0ef691", 'oval', 1, 'striped');
+  var card2 = deck.card("#0ef691", 'rectangle', 2, 'striped');
+  var card3 = deck.card("#0ef691", 'diamond', 3, 'striped');
+  var pos1 = {
+    x: INSTRUCTIONS_POS.x + 200,
+    y: INSTRUCTIONS_POS.y + 365
+  };
+  var pos2 = {
+    x: INSTRUCTIONS_POS.x + 200 + (CARD_SIZE.x + CARD_MARGIN.x) * 1 / 2,
+    y: INSTRUCTIONS_POS.y + 365
+  };
+  var pos3 = {
+    x: INSTRUCTIONS_POS.x + 200 + (CARD_SIZE.x + CARD_MARGIN.x) * 1 / 2 * 2,
+    y: INSTRUCTIONS_POS.y + 365
+  };
+  drawCard(pos1, 1 / 2, "white");
+  drawSymbols(card1, pos1, 1 / 2);
+  drawCard(pos2, 1 / 2, "white");
+  drawSymbols(card2, pos2, 1 / 2);
+  drawCard(pos3, 1 / 2, "white");
+  drawSymbols(card3, pos3, 1 / 2);
+  ctx.fillStyle = "#514e4f";
+  ctx.fillText("    And this next set has different numbers, symbols, colors and shading.", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 470);
+  var card4 = deck.card("#0ef691", 'oval', 1, 'striped');
+  var card5 = deck.card("#fb4c4d", 'rectangle', 2, 'solid');
+  var card6 = deck.card("#62a6e0", 'diamond', 3, 'open');
+  var pos4 = {
+    x: INSTRUCTIONS_POS.x + 200,
+    y: INSTRUCTIONS_POS.y + 495
+  };
+  var pos5 = {
+    x: INSTRUCTIONS_POS.x + 200 + (CARD_SIZE.x + CARD_MARGIN.x) * 1 / 2,
+    y: INSTRUCTIONS_POS.y + 495
+  };
+  var pos6 = {
+    x: INSTRUCTIONS_POS.x + 200 + (CARD_SIZE.x + CARD_MARGIN.x) * 1 / 2 * 2,
+    y: INSTRUCTIONS_POS.y + 495
+  };
+  drawCard(pos4, 1 / 2, "white");
+  drawSymbols(card4, pos4, 1 / 2);
+  drawCard(pos5, 1 / 2, "white");
+  drawSymbols(card5, pos5, 1 / 2);
+  drawCard(pos6, 1 / 2, "white");
+  drawSymbols(card6, pos6, 1 / 2);
+  ctx.fillStyle = "#514e4f";
+  ctx.fillText("                         The game ends when you find ten sets.", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 600);
 };
 
 handleShowInstructions = function handleShowInstructions(cx, cy) {
   if (cx >= INSTRUCTIONS_BUTTON_POS.x && cx <= INSTRUCTIONS_BUTTON_POS.x + SUBMIT_SIZE.x && cy >= INSTRUCTIONS_BUTTON_POS.y && cy <= INSTRUCTIONS_BUTTON_POS.y + SUBMIT_SIZE.y) {
-    ctx.fillStyle = "gray";
-    ctx.globalAlpha = .5;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    instructionsShowing = true;
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = "#BDF3FF";
-    ctx.strokeStyle = "#847b7e";
-    ctx.fillRect(INSTRUCTIONS_POS.x, INSTRUCTIONS_POS.y, INSTRUCTIONS_SIZE.x, INSTRUCTIONS_SIZE.y);
-    ctx.beginPath();
-    ctx.rect(INSTRUCTIONS_POS.x, INSTRUCTIONS_POS.y, INSTRUCTIONS_SIZE.x, INSTRUCTIONS_SIZE.y);
-    ctx.closePath();
-    ctx.stroke();
-    ctx.fillStyle = "red";
-    ctx.fillRect(CLOSE_INSTRUCTIONS_POS.x, CLOSE_INSTRUCTIONS_POS.y, CLOSE_INSTRUCTIONS_SIZE.x, CLOSE_INSTRUCTIONS_SIZE.y);
-    ctx.fillStyle = "white";
-    ctx.font = "19px Georgia";
-    ctx.fillText("x", CLOSE_INSTRUCTIONS_POS.x + 6, CLOSE_INSTRUCTIONS_POS.y + 15);
-    ctx.fillStyle = "#847b7e";
-    ctx.fillText("Instructions:", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 50);
-    ctx.font = "18px Georgia";
-    ctx.fillText("The object of each round of Set is to find a ‘set’ of three cards from the", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 90);
-    ctx.fillText("available face up cards. Each card has four features (color, symbol,", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 115);
-    ctx.fillText("number and shading). In a proper ‘set,’ for each feature, all three cards", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 140);
-    ctx.fillText("have the same variation of the feature, or different variations of the", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 165);
-    ctx.fillText("feature. The variations of each feature are as follows:", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 190);
-    ctx.fillText("  1. Color: red, green, or blue.", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 215);
-    ctx.fillText("  2. Symbol: ovals, rectangles, or diamonds.", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 240);
-    ctx.fillText("  3. Number: one, two, or three symbols. ", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 265);
-    ctx.fillText("  4. Shading: solid, open, or striped.", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 290);
-    ctx.fillText("In the set below, the cards have different numbers and symbols, and the", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 315);
-    ctx.fillText("same color and shading.", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 340);
-    var card1 = deck.card("#0ef691", 'oval', 1, 'striped');
-    var card2 = deck.card("#0ef691", 'rectangle', 2, 'striped');
-    var card3 = deck.card("#0ef691", 'diamond', 3, 'striped');
-    var pos1 = {
-      x: INSTRUCTIONS_POS.x + 200,
-      y: INSTRUCTIONS_POS.y + 365
-    };
-    var pos2 = {
-      x: INSTRUCTIONS_POS.x + 200 + (CARD_SIZE.x + CARD_MARGIN.x) * 1 / 2,
-      y: INSTRUCTIONS_POS.y + 365
-    };
-    var pos3 = {
-      x: INSTRUCTIONS_POS.x + 200 + (CARD_SIZE.x + CARD_MARGIN.x) * 1 / 2 * 2,
-      y: INSTRUCTIONS_POS.y + 365
-    };
-    drawCard(pos1, 1 / 2, "white");
-    drawSymbols(card1, pos1, 1 / 2);
-    drawCard(pos2, 1 / 2, "white");
-    drawSymbols(card2, pos2, 1 / 2);
-    drawCard(pos3, 1 / 2, "white");
-    drawSymbols(card3, pos3, 1 / 2);
-    ctx.fillStyle = "#847b7e";
-    ctx.fillText("The game ends when you find ten sets.", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 470); // The variations of each feature are as follows
+    drawButton(INSTRUCTIONS_BUTTON_POS, "Instructions", {
+      x: 23,
+      y: 21
+    }, "#d2cecf");
+    setTimeout(drawInstructions, 100);
   }
 };
 
@@ -718,24 +776,47 @@ handleCloseInstructions = function handleCloseInstructions(cx, cy) {
 };
 
 handleDealThreeMore = function handleDealThreeMore(cx, cy) {
-  if (cx >= DEAL_THREE_MORE_POS.x && cx <= DEAL_THREE_MORE_POS.x + SUBMIT_SIZE.x && cy >= DEAL_THREE_MORE_POS.y && cy <= DEAL_THREE_MORE_POS.y + SUBMIT_SIZE.y && deck.faceUpCount <= 12) {
-    for (var i = 0; i < 15; i++) {
-      if (deck.faceUpCards[i].symbol === undefined) {
-        var pos = {
-          x: IN_SET.x + Math.floor(i / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
-          y: IN_SET.y + i % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
-        };
-        drawCard(pos, 1, "white");
-        drawSymbols(deck.dealCard(i), pos, 1);
-      }
-    }
+  if (cx >= DEAL_THREE_MORE_POS.x && cx <= DEAL_THREE_MORE_POS.x + SUBMIT_SIZE.x && cy >= DEAL_THREE_MORE_POS.y && cy <= DEAL_THREE_MORE_POS.y + SUBMIT_SIZE.y) {
+    drawButton(DEAL_THREE_MORE_POS, "Deal Three More", {
+      x: 5,
+      y: 21
+    }, "#d2cecf");
+    setTimeout(function () {
+      drawButton(DEAL_THREE_MORE_POS, "Deal Three More", {
+        x: 5,
+        y: 21
+      }, "gray");
+    }, 100);
 
-    showNumberOfMoves();
+    if (deck.faceUpCount <= 12) {
+      for (var i = 0; i < 15; i++) {
+        if (deck.faceUpCards[i].symbol === undefined) {
+          var pos = {
+            x: IN_SET.x + Math.floor(i / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
+            y: IN_SET.y + i % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
+          };
+          drawCard(pos, 1, "white");
+          drawSymbols(deck.dealCard(i), pos, 1);
+        }
+      }
+
+      showNumberOfMoves();
+    }
   }
 };
 
 handleShowMove = function handleShowMove(cx, cy) {
   if (cx >= SHOW_MOVE_POS.x && cx <= SHOW_MOVE_POS.x + SUBMIT_SIZE.x && cy >= SHOW_MOVE_POS.y && cy <= SHOW_MOVE_POS.y + SUBMIT_SIZE.y) {
+    drawButton(SHOW_MOVE_POS, "Show Move", {
+      x: 25,
+      y: 21
+    }, "#d2cecf");
+    setTimeout(function () {
+      drawButton(SHOW_MOVE_POS, "Show Move", {
+        x: 25,
+        y: 21
+      }, "gray");
+    }, 100);
     renderBoard();
     var selections = game.findAllValidSelections(deck.faceUpCards);
 
@@ -747,10 +828,10 @@ handleShowMove = function handleShowMove(cx, cy) {
         var pos = {
           x: IN_SET.x + Math.floor(idx / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
           y: IN_SET.y + idx % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
-        };
-        highlightCard(pos);
+        }; // highlightCard(pos);
       });
       deck.selected = selections[selectIndex];
+      highlightSelected();
     }
   }
 };
@@ -768,7 +849,17 @@ renderBoard = function renderBoard() {
 
 handleNewGame = function handleNewGame(cx, cy) {
   if (cx >= NEW_GAME_POS.x && cx <= NEW_GAME_POS.x + SUBMIT_SIZE.x && cy >= NEW_GAME_POS.y && cy <= NEW_GAME_POS.y + SUBMIT_SIZE.y) {
-    newGame();
+    drawButton(NEW_GAME_POS, "New Game", {
+      x: 30,
+      y: 21
+    }, "#d2cecf");
+    window.setTimeout(function () {
+      drawButton(NEW_GAME_POS, "New Game", {
+        x: 30,
+        y: 21
+      }, "gray");
+      newGame();
+    }, 100);
   }
 };
 
@@ -815,19 +906,10 @@ window.onload = function () {
 };
 
 showNumberOfMoves = function showNumberOfMoves() {
-  ctx.fillStyle = "gray";
-  drawRoundedRec(SHOW_VALID_POS, SUBMIT_SIZE.x, SUBMIT_SIZE.y, SUBMIT_SIZE.x / 10, "gray");
-  ctx.fillStyle = "white";
-  ctx.font = "19px Georgia";
-  ctx.fillText("Valid Moves: ".concat(game.findAllValidSelections(deck.faceUpCards).length), SHOW_VALID_POS.x + 13, SHOW_VALID_POS.y + 22);
-};
-
-showMoveButton = function showMoveButton() {
-  ctx.fillStyle = "gray";
-  drawRoundedRec(SHOW_MOVE_POS, SUBMIT_SIZE.x, SUBMIT_SIZE.y, SUBMIT_SIZE.x / 10, "gray");
-  ctx.fillStyle = "white";
-  ctx.font = "19px Georgia";
-  ctx.fillText("Show Move", SHOW_MOVE_POS.x + 25, SHOW_MOVE_POS.y + 21);
+  drawButton(SHOW_VALID_POS, "Valid Moves: ".concat(game.findAllValidSelections(deck.faceUpCards).length), {
+    x: 13,
+    y: 22
+  }, "gray");
 };
 
 drawOutOfPlayCards = function drawOutOfPlayCards() {
@@ -844,36 +926,34 @@ drawOutOfPlayCards = function drawOutOfPlayCards() {
 };
 
 showScore = function showScore() {
-  ctx.fillStyle = "gray";
-  drawRoundedRec(SCORE_POS, SUBMIT_SIZE.x, SUBMIT_SIZE.y, SUBMIT_SIZE.x / 10, "gray");
-  ctx.fillStyle = "white";
-  ctx.font = "19px Georgia";
-  ctx.fillText("Score: ".concat(score), SCORE_POS.x + 42, SCORE_POS.y + 22);
+  drawButton(SCORE_POS, "Score: ".concat(score), {
+    x: 42,
+    y: 22
+  }, "gray");
 };
 
 drawButtons = function drawButtons() {
   showScore();
-  ctx.fillStyle = "gray";
-  drawRoundedRec(SUBMIT_POS, SUBMIT_SIZE.x, SUBMIT_SIZE.y, SUBMIT_SIZE.x / 10, "gray");
-  ctx.fillStyle = "white";
-  ctx.font = "19px Georgia";
-  ctx.fillText("Submit", SUBMIT_POS.x + 42, SUBMIT_POS.y + 22);
-  ctx.fillStyle = "gray";
-  drawRoundedRec(DEAL_THREE_MORE_POS, SUBMIT_SIZE.x, SUBMIT_SIZE.y, SUBMIT_SIZE.x / 10, "gray");
-  ctx.fillStyle = "white";
-  ctx.font = "19px Georgia";
-  ctx.fillText("Deal Three More", DEAL_THREE_MORE_POS.x + 5, DEAL_THREE_MORE_POS.y + 21);
-  ctx.fillStyle = "gray";
-  drawRoundedRec(NEW_GAME_POS, SUBMIT_SIZE.x, SUBMIT_SIZE.y, SUBMIT_SIZE.x / 10, "gray");
-  ctx.fillStyle = "white";
-  ctx.font = "19px Georgia";
-  ctx.fillText("New Game", NEW_GAME_POS.x + 30, NEW_GAME_POS.y + 21);
-  ctx.fillStyle = "gray";
-  drawRoundedRec(INSTRUCTIONS_BUTTON_POS, SUBMIT_SIZE.x, SUBMIT_SIZE.y, SUBMIT_SIZE.x / 10, "gray");
-  ctx.fillStyle = "white";
-  ctx.font = "19px Georgia";
-  ctx.fillText("Instructions", INSTRUCTIONS_BUTTON_POS.x + 23, INSTRUCTIONS_BUTTON_POS.y + 21);
-  showMoveButton();
+  drawButton(SUBMIT_POS, "Submit", {
+    x: 42,
+    y: 22
+  }, "gray");
+  drawButton(DEAL_THREE_MORE_POS, "Deal Three More", {
+    x: 5,
+    y: 21
+  }, "gray");
+  drawButton(NEW_GAME_POS, "New Game", {
+    x: 30,
+    y: 21
+  }, "gray");
+  drawButton(INSTRUCTIONS_BUTTON_POS, "Instructions", {
+    x: 23,
+    y: 21
+  }, "gray");
+  drawButton(SHOW_MOVE_POS, "Show Move", {
+    x: 25,
+    y: 21
+  }, "gray");
   showNumberOfMoves();
 };
 
