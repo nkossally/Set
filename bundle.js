@@ -431,7 +431,7 @@ animateDrawCard = function (_animateDrawCard) {
 
 drawCard = function drawCard(pos, scale, color, card) {
   if (scale >= 0) {
-    clearCard(pos);
+    clearCard(pos, scale);
     drawRoundedRec(pos, CARD_SIZE.x * scale, CARD_SIZE.y * scale, CARD_SIZE.x * scale / 10, color);
     ctx.strokeStyle = "#f8cdbf";
     ctx.stroke();
@@ -829,11 +829,11 @@ afterCardAnimation = function afterCardAnimation(card, pos, scale) {
   highlightSelected();
 };
 
-clearCard = function clearCard(pos) {
+clearCard = function clearCard(pos, scale) {
   drawRoundedRec({
     x: pos.x - 1,
     y: pos.y - 1
-  }, CARD_SIZE.x + 2, CARD_SIZE.y + 2, CARD_SIZE.x / 10, "#BDF3FF");
+  }, scale * CARD_SIZE.x + 2, scale * CARD_SIZE.y + 2, scale * CARD_SIZE.x / 10, "#BDF3FF");
 };
 
 handleDealThreeMore = function handleDealThreeMore(cx, cy) {
