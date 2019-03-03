@@ -26,3 +26,7 @@ body {
   width: 45px;
   margin-right: 25px
 }
+
+.hide{
+  display: none;
+}

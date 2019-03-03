@@ -681,7 +681,7 @@ var NEW_GAME_POS = {
 };
 var INSTRUCTIONS_POS = {
   x: IN_SET.x + 2 * CARD_SIZE.x + 1.5 * CARD_MARGIN.x,
-  y: 2
+  y: 51
 };
 var INSTRUCTIONS_SIZE = {
   x: 600,
@@ -689,7 +689,7 @@ var INSTRUCTIONS_SIZE = {
 };
 var CLOSE_INSTRUCTIONS_POS = {
   x: INSTRUCTIONS_POS.x + INSTRUCTIONS_SIZE.x - 40,
-  y: 10
+  y: 60
 };
 var CLOSE_INSTRUCTIONS_SIZE = {
   x: 20,
@@ -863,7 +863,7 @@ handleShowInstructions = function handleShowInstructions(cx, cy) {
 };
 
 handleCloseInstructions = function handleCloseInstructions(cx, cy) {
-  if (cx >= CLOSE_INSTRUCTIONS_POS.x && cx <= CLOSE_INSTRUCTIONS_POS.x + CLOSE_INSTRUCTIONS_SIZE.x && cy >= CLOSE_INSTRUCTIONS_POS.y && cy <= CLOSE_INSTRUCTIONS_POS.y + CLOSE_INSTRUCTIONS_SIZE.y || cx < INSTRUCTIONS_POS.x || cx > INSTRUCTIONS_POS.x + INSTRUCTIONS_SIZE.x) {
+  if (cx >= CLOSE_INSTRUCTIONS_POS.x && cx <= CLOSE_INSTRUCTIONS_POS.x + CLOSE_INSTRUCTIONS_SIZE.x && cy >= CLOSE_INSTRUCTIONS_POS.y && cy <= CLOSE_INSTRUCTIONS_POS.y + CLOSE_INSTRUCTIONS_SIZE.y || cx < INSTRUCTIONS_POS.x || cx > INSTRUCTIONS_POS.x + INSTRUCTIONS_SIZE.x || cy < INSTRUCTIONS_POS.y) {
     instructionsShowing = false;
     ctx.beginPath();
     renderBackground();
