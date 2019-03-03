@@ -706,14 +706,8 @@ var YOU_WIN_POS = {
 var YOU_WIN_SIZE = {
   x: 300,
   y: 300
-};
-var GIT_POS = {
-  x: 100,
-  y: 600
-};
-var GIT_ICON = React.createElement("i", {
-  class: "fab fa-github"
-});
+}; // const GIT_POS = {x: 100, y: 600};
+
 var canvasPattern = document.createElement("canvas");
 var ctxPattern = canvasPattern.getContext("2d");
 canvasPattern.width = 10;
@@ -1014,9 +1008,9 @@ renderBackground = function renderBackground() {
   ctx.stroke();
   ctx.fillStyle = "#BDF3FF";
   ctx.font = "60px Georgia";
-  ctx.fillText("SET", 100, 50);
+  ctx.fillText("SET", 400, 50);
   ctx.font = "40px Georgia";
-  ctx.fillText("by Najja Kossally", 450, 50);
+  ctx.fillText("Najja Kossally", 50, 50);
   drawButtons();
 };
 
@@ -1074,13 +1068,6 @@ drawButtons = function drawButtons() {
     y: 21
   }, "gray", SUBMIT_SIZE);
   showNumberOfMoves();
-  drawGit();
-};
-
-drawGit = function drawGit() {
-  ctx.font = '10px sans-serif';
-  ctx.fillStyle = "#0000ff";
-  ctx.fillText(GIT_ICON, GIT_POS.x, GIT_POS.y);
 };
 
 /***/ })

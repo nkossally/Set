@@ -2,10 +2,27 @@ body {
   margin: 0 !important;
   padding: 0 !important;
 }
-.test{
+
+#canvas{
+  position: absolute;
+  z-index: -1;
+}
+
+#links {
   display: flex;
-  height: 100px;
-  width: 100px;
-  background-color: green;
-  z-index: 2;
+  flex-direction: row;
+  width: 150px;
+  height: 50px;
+  position: absolute;
+  top: 5px;
+  right: 40px;
+  color: black;
+}
+
+
+#links * {
+  /* z-index: 0; */
+  height: 45px;
+  width: 45px;
+  margin-right: 25px
 }
