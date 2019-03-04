@@ -24,9 +24,13 @@ body {
   /* z-index: 0; */
   height: 45px;
   width: 45px;
-  margin-right: 25px
+  margin-right: 25px;
 }
 
-.hide{
-  display: none;
+#links * :focus {
+  /* outline: none; */
+}
+
+.dim * {
+  opacity: .5;
 }

@@ -632,7 +632,7 @@ var canvasBackground = document.createElement("canvas");
 var ctxBackground = canvasBackground.getContext("2d");
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
+canvas.width = Math.max(window.innerWidth, 1500);
 canvas.height = window.innerHeight;
 var CARD_SIZE = {
   x: 100 * 130 / 140,
@@ -706,8 +706,7 @@ var YOU_WIN_POS = {
 var YOU_WIN_SIZE = {
   x: 300,
   y: 300
-}; // const GIT_POS = {x: 100, y: 600};
-
+};
 var canvasPattern = document.createElement("canvas");
 var ctxPattern = canvasPattern.getContext("2d");
 canvasPattern.width = 10;
@@ -718,8 +717,7 @@ ctxPattern.lineTo(0, 0);
 ctxPattern.closePath();
 deck = new Deck();
 game = new Game();
-draw = new Draw(ctxPattern, background, canvasPattern); // deck.createDeck(ctxPattern, background);
-
+draw = new Draw(ctxPattern, background, canvasPattern);
 canvas.addEventListener("click", handleClick);
 
 function handleClick(event) {
@@ -859,11 +857,15 @@ handleShowInstructions = function handleShowInstructions(cx, cy) {
     setTimeout(function () {
       draw.drawInstructions(ctx, CARD_MARGIN, INSTRUCTIONS_POS, CLOSE_INSTRUCTIONS_POS, CLOSE_INSTRUCTIONS_SIZE, INSTRUCTIONS_BUTTON_POS, INSTRUCTIONS_SIZE, SUBMIT_SIZE);
     }, 100);
+    var navLinks = document.getElementById("links");
+    navLinks.classList.add("dim");
   }
 };
 
 handleCloseInstructions = function handleCloseInstructions(cx, cy) {
   if (cx >= CLOSE_INSTRUCTIONS_POS.x && cx <= CLOSE_INSTRUCTIONS_POS.x + CLOSE_INSTRUCTIONS_SIZE.x && cy >= CLOSE_INSTRUCTIONS_POS.y && cy <= CLOSE_INSTRUCTIONS_POS.y + CLOSE_INSTRUCTIONS_SIZE.y || cx < INSTRUCTIONS_POS.x || cx > INSTRUCTIONS_POS.x + INSTRUCTIONS_SIZE.x || cy < INSTRUCTIONS_POS.y) {
+    var navLinks = document.getElementById("links");
+    navLinks.classList.remove("dim");
     instructionsShowing = false;
     ctx.beginPath();
     renderBackground();
