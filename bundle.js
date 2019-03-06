@@ -633,7 +633,7 @@ var ctxBackground = canvasBackground.getContext("2d");
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 canvas.width = Math.max(window.innerWidth, 1500);
-canvas.height = window.innerHeight;
+canvas.height = Math.max(window.innerHeight, 1000);
 var CARD_SIZE = {
   x: 100 * 130 / 140,
   y: 140 * 130 / 140
