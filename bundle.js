@@ -815,6 +815,9 @@ handleSubmit = function handleSubmit(cx, cy) {
         setTimeout(function () {
           if (score === 10) showWin();
         }, 100);
+      } else {
+        deck.selected = [];
+        renderBoard();
       }
     }
   }
@@ -1010,9 +1013,9 @@ renderBackground = function renderBackground() {
   ctx.stroke();
   ctx.fillStyle = "#BDF3FF";
   ctx.font = "60px Georgia";
-  ctx.fillText("SET", 400, 50);
+  ctx.fillText("SET", 450, 50);
   ctx.font = "40px Georgia";
-  ctx.fillText("Najja Kossally", 50, 50);
+  ctx.fillText("Najja Kossally", 25, 50);
   drawButtons();
 };
 

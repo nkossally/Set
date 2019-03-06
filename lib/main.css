@@ -34,3 +34,21 @@ body {
 .dim * {
   opacity: .5;
 }
+
+
+
+#card {
+  width: 35px;
+  position: absolute;
+  left: 350px;
+  -webkit-animation: rotation 3s infinite linear;
+}
+
+@-webkit-keyframes rotation {
+  from {
+      -webkit-transform: rotate(0deg);
+  }
+  to {
+      -webkit-transform: rotate(359deg);
+  }
+}
