@@ -861,6 +861,8 @@ handleShowInstructions = function handleShowInstructions(cx, cy) {
       draw.drawInstructions(ctx, CARD_MARGIN, INSTRUCTIONS_POS, CLOSE_INSTRUCTIONS_POS, CLOSE_INSTRUCTIONS_SIZE, INSTRUCTIONS_BUTTON_POS, INSTRUCTIONS_SIZE, SUBMIT_SIZE);
     }, 100);
     var navLinks = document.getElementById("links");
+    var card_img = document.getElementById("card");
+    card_img.classList.add("dim");
     navLinks.classList.add("dim");
   }
 };
@@ -868,6 +870,8 @@ handleShowInstructions = function handleShowInstructions(cx, cy) {
 handleCloseInstructions = function handleCloseInstructions(cx, cy) {
   if (cx >= CLOSE_INSTRUCTIONS_POS.x && cx <= CLOSE_INSTRUCTIONS_POS.x + CLOSE_INSTRUCTIONS_SIZE.x && cy >= CLOSE_INSTRUCTIONS_POS.y && cy <= CLOSE_INSTRUCTIONS_POS.y + CLOSE_INSTRUCTIONS_SIZE.y || cx < INSTRUCTIONS_POS.x || cx > INSTRUCTIONS_POS.x + INSTRUCTIONS_SIZE.x || cy < INSTRUCTIONS_POS.y) {
     var navLinks = document.getElementById("links");
+    var card_img = document.getElementById("card");
+    card_img.classList.remove("dim");
     navLinks.classList.remove("dim");
     instructionsShowing = false;
     ctx.beginPath();
