@@ -633,14 +633,14 @@ var ctxBackground = canvasBackground.getContext("2d");
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 canvas.width = Math.max(window.innerWidth, 1500);
-canvas.height = Math.max(window.innerHeight, 1000);
+canvas.height = Math.max(window.innerHeight, 800);
 var CARD_SIZE = {
   x: 100 * 130 / 140,
   y: 140 * 130 / 140
 };
 var SYMBOL_SIZE = CARD_SIZE.y * 3 / 14;
 var IN_SET = {
-  x: 10,
+  x: Math.max(window.innerWidth - 1040, 0) / 2 + 10,
   y: 80
 };
 var CARD_MARGIN = {
@@ -685,7 +685,7 @@ var INSTRUCTIONS_POS = {
 };
 var INSTRUCTIONS_SIZE = {
   x: 600,
-  y: canvas.height
+  y: 650
 };
 var CLOSE_INSTRUCTIONS_POS = {
   x: INSTRUCTIONS_POS.x + INSTRUCTIONS_SIZE.x - 40,
@@ -700,12 +700,9 @@ var OUT_OF_PLAY_POS = {
   y: IN_SET.y
 };
 var YOU_WIN_POS = {
-  x: 195,
-  y: 250
-};
-var YOU_WIN_SIZE = {
-  x: 300,
-  y: 300
+  x: 195 + IN_SET.x,
+  y: 250 // const YOU_WIN_SIZE = {x: 300, y: 300};
+
 };
 var canvasPattern = document.createElement("canvas");
 var ctxPattern = canvasPattern.getContext("2d");
@@ -982,6 +979,7 @@ handleNewGame = function handleNewGame(cx, cy) {
         y: 21
       }, "gray", SUBMIT_SIZE);
       newGame();
+      showNumberOfMoves();
     }, 100);
   }
 };
@@ -1011,15 +1009,16 @@ renderBackground = function renderBackground() {
   ctx.fillRect(0, 560, canvas.width, window.innerHeight);
   ctx.fillStyle = "#f8cdbf";
   ctx.fillRect(0, 50, canvas.width, 520);
-  ctx.fillStyle = "#BDF3FF";
-  ctx.fillRect(IN_SET.x / 2, IN_SET.y - 15, OUT_OF_PLAY_POS.x + 1 / 3 * CARD_SIZE.x * 6 + 1 / 3 * CARD_MARGIN.x * 4 + IN_SET.x / 2 + 20, 3 * CARD_SIZE.y + 2 * CARD_MARGIN.y + 40);
-  ctx.rect(IN_SET.x / 2, IN_SET.y - 15, OUT_OF_PLAY_POS.x + 1 / 3 * CARD_SIZE.x * 6 + 1 / 3 * CARD_MARGIN.x * 4 + IN_SET.x / 2 + 20, 3 * CARD_SIZE.y + 2 * CARD_MARGIN.y + 40);
+  ctx.fillStyle = "#BDF3FF"; // ctx.fillRect(IN_SET.x/2, IN_SET.y-15, OUT_OF_PLAY_POS.x+(1/3)*CARD_SIZE.x*6+(1/3)*CARD_MARGIN.x*4+IN_SET.x/2+20, 3*CARD_SIZE.y+2*CARD_MARGIN.y+40)
+
+  ctx.fillRect(IN_SET.x / 2, IN_SET.y - 15, 1040, 3 * CARD_SIZE.y + 2 * CARD_MARGIN.y + 40);
+  ctx.rect(IN_SET.x / 2, IN_SET.y - 15, 1040, 3 * CARD_SIZE.y + 2 * CARD_MARGIN.y + 40);
   ctx.stroke();
   ctx.fillStyle = "#BDF3FF";
   ctx.font = "60px Georgia";
-  ctx.fillText("SET", 450, 50);
+  ctx.fillText("SET", 25, 50);
   ctx.font = "40px Georgia";
-  ctx.fillText("Najja Kossally", 25, 50);
+  ctx.fillText("Najja Kossally", 325, 50);
   drawButtons();
 };
 
