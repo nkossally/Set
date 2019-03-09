@@ -735,12 +735,16 @@ function handleClick(event) {
   }
 }
 
+indexToPos = function indexToPos(i) {
+  return {
+    x: IN_SET.x + 10 + Math.floor(i / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
+    y: IN_SET.y + i % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
+  };
+};
+
 handleSelect = function handleSelect(cx, cy) {
   for (var i = 0; i < 15; i++) {
-    var pos = {
-      x: IN_SET.x + 10 + Math.floor(i / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
-      y: IN_SET.y + i % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
-    };
+    var pos = indexToPos(i);
 
     if (cx >= pos.x && cx <= pos.x + CARD_SIZE.x && cy >= pos.y && cy <= pos.y + CARD_SIZE.y) {
       var card = deck.faceUpCards[i];
@@ -760,10 +764,7 @@ handleSelect = function handleSelect(cx, cy) {
       if (deck.selected.length > 3) {
         var _idx = deck.faceUpCards.indexOf(deck.selected[2]);
 
-        var oldPos = {
-          x: IN_SET.x + 10 + Math.floor(_idx / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
-          y: IN_SET.y + _idx % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
-        };
+        var oldPos = indexToPos(_idx);
         deck.selected.splice(2, 1);
         renderBoard();
         highlightSelected();
@@ -791,10 +792,7 @@ handleSubmit = function handleSubmit(cx, cy) {
       if (game.isValidSelection(deck.selected)) {
         deck.selected.forEach(function (card) {
           var idx = deck.removeCard(card);
-          var pos = {
-            x: IN_SET.x + 10 + Math.floor(idx / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
-            y: IN_SET.y + idx % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
-          };
+          var pos = indexToPos(idx);
           draw.animateDrawCard(ctx, pos, 1, 0, "white", card, "decrease");
           setTimeout(function () {
             draw.animateDrawCard(ctx, pos, 0, 1, "white", deck.faceUpCards[idx], "increase");
@@ -839,10 +837,7 @@ highlightSelected = function highlightSelected() {
   var color = game.isValidSelection(deck.selected) ? "#07eb1d" : "yellow";
   deck.selected.forEach(function (card) {
     idx = deck.faceUpCards.indexOf(card);
-    var pos = {
-      x: IN_SET.x + 10 + Math.floor(idx / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
-      y: IN_SET.y + idx % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
-    };
+    var pos = indexToPos(idx);
     highlightCard(pos, color);
   });
 };
@@ -904,10 +899,7 @@ handleDealThreeMore = function handleDealThreeMore(cx, cy) {
       for (var i = 0; i < 15; i++) {
         if (deck.faceUpCards[i].symbol === undefined) {
           (function () {
-            var pos = {
-              x: IN_SET.x + 10 + Math.floor(i / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
-              y: IN_SET.y + i % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
-            };
+            var pos = indexToPos(idx);
             var prevCard = deck.faceUpCards[i];
             var card = deck.dealCard(i);
             draw.animateDrawCard(ctx, pos, 1, 0, "white", prevCard, "decrease");
@@ -946,10 +938,7 @@ handleShowMove = function handleShowMove(cx, cy) {
       selectIndex = showCount % selections.length;
       selections[selectIndex].forEach(function (card) {
         idx = deck.faceUpCards.indexOf(card);
-        var pos = {
-          x: IN_SET.x + 10 + Math.floor(idx / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
-          y: IN_SET.y + idx % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
-        }; // highlightCard(pos);
+        var pos = indexToPos(idx); // highlightCard(pos);
       });
       deck.selected = selections[selectIndex];
       highlightSelected();
@@ -959,10 +948,7 @@ handleShowMove = function handleShowMove(cx, cy) {
 
 renderBoard = function renderBoard() {
   for (var i = 0; i < 15; i++) {
-    var pos = {
-      x: IN_SET.x + 10 + Math.floor(i / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
-      y: IN_SET.y + i % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
-    };
+    var pos = indexToPos(i);
     draw.drawCard(ctx, pos, 1, "white", deck.faceUpCards[i], CARD_SIZE, background);
   }
 };
