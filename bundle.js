@@ -652,7 +652,7 @@ var SUBMIT_SIZE = {
   y: 30
 };
 var SCORE_POS = {
-  x: IN_SET.x + 5 * (CARD_SIZE.x + CARD_MARGIN.x),
+  x: IN_SET.x + 10 + 5 * (CARD_SIZE.x + CARD_MARGIN.x),
   y: IN_SET.y
 };
 var SUBMIT_POS = {
@@ -738,7 +738,7 @@ function handleClick(event) {
 handleSelect = function handleSelect(cx, cy) {
   for (var i = 0; i < 15; i++) {
     var pos = {
-      x: IN_SET.x + Math.floor(i / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
+      x: IN_SET.x + 10 + Math.floor(i / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
       y: IN_SET.y + i % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
     };
 
@@ -761,7 +761,7 @@ handleSelect = function handleSelect(cx, cy) {
         var _idx = deck.faceUpCards.indexOf(deck.selected[2]);
 
         var oldPos = {
-          x: IN_SET.x + Math.floor(_idx / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
+          x: IN_SET.x + 10 + Math.floor(_idx / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
           y: IN_SET.y + _idx % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
         };
         deck.selected.splice(2, 1);
@@ -792,7 +792,7 @@ handleSubmit = function handleSubmit(cx, cy) {
         deck.selected.forEach(function (card) {
           var idx = deck.removeCard(card);
           var pos = {
-            x: IN_SET.x + Math.floor(idx / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
+            x: IN_SET.x + 10 + Math.floor(idx / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
             y: IN_SET.y + idx % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
           };
           draw.animateDrawCard(ctx, pos, 1, 0, "white", card, "decrease");
@@ -840,7 +840,7 @@ highlightSelected = function highlightSelected() {
   deck.selected.forEach(function (card) {
     idx = deck.faceUpCards.indexOf(card);
     var pos = {
-      x: IN_SET.x + Math.floor(idx / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
+      x: IN_SET.x + 10 + Math.floor(idx / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
       y: IN_SET.y + idx % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
     };
     highlightCard(pos, color);
@@ -905,7 +905,7 @@ handleDealThreeMore = function handleDealThreeMore(cx, cy) {
         if (deck.faceUpCards[i].symbol === undefined) {
           (function () {
             var pos = {
-              x: IN_SET.x + Math.floor(i / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
+              x: IN_SET.x + 10 + Math.floor(i / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
               y: IN_SET.y + i % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
             };
             var prevCard = deck.faceUpCards[i];
@@ -947,7 +947,7 @@ handleShowMove = function handleShowMove(cx, cy) {
       selections[selectIndex].forEach(function (card) {
         idx = deck.faceUpCards.indexOf(card);
         var pos = {
-          x: IN_SET.x + Math.floor(idx / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
+          x: IN_SET.x + 10 + Math.floor(idx / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
           y: IN_SET.y + idx % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
         }; // highlightCard(pos);
       });
@@ -960,7 +960,7 @@ handleShowMove = function handleShowMove(cx, cy) {
 renderBoard = function renderBoard() {
   for (var i = 0; i < 15; i++) {
     var pos = {
-      x: IN_SET.x + Math.floor(i / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
+      x: IN_SET.x + 10 + Math.floor(i / 3) * (CARD_SIZE.x + CARD_MARGIN.x),
       y: IN_SET.y + i % 3 * (CARD_SIZE.y + CARD_MARGIN.y)
     };
     draw.drawCard(ctx, pos, 1, "white", deck.faceUpCards[i], CARD_SIZE, background);
@@ -1011,8 +1011,8 @@ renderBackground = function renderBackground() {
   ctx.fillRect(0, 50, canvas.width, 520);
   ctx.fillStyle = "#BDF3FF"; // ctx.fillRect(IN_SET.x/2, IN_SET.y-15, OUT_OF_PLAY_POS.x+(1/3)*CARD_SIZE.x*6+(1/3)*CARD_MARGIN.x*4+IN_SET.x/2+20, 3*CARD_SIZE.y+2*CARD_MARGIN.y+40)
 
-  ctx.fillRect(IN_SET.x / 2, IN_SET.y - 15, 1040, 3 * CARD_SIZE.y + 2 * CARD_MARGIN.y + 40);
-  ctx.rect(IN_SET.x / 2, IN_SET.y - 15, 1040, 3 * CARD_SIZE.y + 2 * CARD_MARGIN.y + 40);
+  ctx.fillRect(IN_SET.x, IN_SET.y - 15, 1040, 3 * CARD_SIZE.y + 2 * CARD_MARGIN.y + 40);
+  ctx.rect(IN_SET.x, IN_SET.y - 15, 1040, 3 * CARD_SIZE.y + 2 * CARD_MARGIN.y + 40);
   ctx.stroke();
   ctx.fillStyle = "#BDF3FF";
   ctx.font = "60px Georgia";
