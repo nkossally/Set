@@ -899,7 +899,7 @@ handleDealThreeMore = function handleDealThreeMore(cx, cy) {
       for (var i = 0; i < 15; i++) {
         if (deck.faceUpCards[i].symbol === undefined) {
           (function () {
-            var pos = indexToPos(idx);
+            var pos = indexToPos(i);
             var prevCard = deck.faceUpCards[i];
             var card = deck.dealCard(i);
             draw.animateDrawCard(ctx, pos, 1, 0, "white", prevCard, "decrease");
