@@ -99,10 +99,10 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var COLORS = ['#fb4c4d', '#0ef691', '#62a6e0'];
-var SYMBOL = ['oval', 'rectangle', 'diamond'];
+var COLORS = ["#fb4c4d", "#0ef691", "#62a6e0"];
+var SYMBOL = ["oval", "rectangle", "diamond"];
 var NUMBER = [1, 2, 3];
-var SHADING = ['solid', 'open', 'striped'];
+var SHADING = ["solid", "open", "striped"];
 
 var Deck =
 /*#__PURE__*/
@@ -236,7 +236,7 @@ function () {
         y: 21
       }, "gray", SUBMIT_SIZE);
       ctx.fillStyle = "gray";
-      ctx.globalAlpha = .5;
+      ctx.globalAlpha = 0.5;
       ctx.fillRect(0, 0, canvas.width, canvas.height); // instructionsShowing = true;
 
       ctx.globalAlpha = 1;
@@ -266,9 +266,9 @@ function () {
       ctx.fillText("                              4. Shading: solid, open, or striped.", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 290);
       ctx.fillText(" In the set below, the cards have different numbers and symbols, and the", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 315);
       ctx.fillText("                                   same color and shading.", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 340);
-      var card1 = this.deck.card("#0ef691", 'oval', 1, 'striped');
-      var card2 = this.deck.card("#0ef691", 'rectangle', 2, 'striped');
-      var card3 = this.deck.card("#0ef691", 'diamond', 3, 'striped');
+      var card1 = this.deck.card("#0ef691", "oval", 1, "striped");
+      var card2 = this.deck.card("#0ef691", "rectangle", 2, "striped");
+      var card3 = this.deck.card("#0ef691", "diamond", 3, "striped");
       var pos1 = {
         x: INSTRUCTIONS_POS.x + 200,
         y: INSTRUCTIONS_POS.y + 365
@@ -286,9 +286,9 @@ function () {
       this.drawCard(ctx, pos3, 1 / 2, "white", card3);
       ctx.fillStyle = "#514e4f";
       ctx.fillText("    And this next set has different numbers, symbols, colors and shading.", INSTRUCTIONS_POS.x + 10, INSTRUCTIONS_POS.y + 470);
-      var card4 = deck.card("#0ef691", 'oval', 1, 'striped');
-      var card5 = deck.card("#fb4c4d", 'rectangle', 2, 'solid');
-      var card6 = deck.card("#62a6e0", 'diamond', 3, 'open');
+      var card4 = deck.card("#0ef691", "oval", 1, "striped");
+      var card5 = deck.card("#fb4c4d", "rectangle", 2, "solid");
+      var card6 = deck.card("#62a6e0", "diamond", 3, "open");
       var pos4 = {
         x: INSTRUCTIONS_POS.x + 200,
         y: INSTRUCTIONS_POS.y + 495
@@ -399,7 +399,7 @@ function () {
     key: "drawSymbols",
     value: function drawSymbols(ctx, card, pos, scale) {
       if (card.symbol === undefined) {
-        ctx.globalAlpha = .5;
+        ctx.globalAlpha = 0.5;
         this.drawCard(ctx, pos, scale, ctx.createPattern(this.background, "repeat"));
         ctx.globalAlpha = 1;
       }
@@ -511,7 +511,7 @@ function () {
 
       if (startScale !== endScale) {
         this.drawCard(ctx, pos, startScale, color, card);
-        direction === "increase" ? startScale += .50 : startScale -= .50;
+        direction === "increase" ? startScale += 0.5 : startScale -= 0.5;
         requestAnimationFrame(function () {
           that.animateDrawCard(ctx, pos, startScale, endScale, color, card, direction);
         });
@@ -627,7 +627,7 @@ var showCount = 0;
 var score = 0;
 var instructionsShowing = false;
 var background = new Image();
-background.src = './assets/images/escher.png';
+background.src = "./assets/images/escher.png";
 var canvasBackground = document.createElement("canvas");
 var ctxBackground = canvasBackground.getContext("2d");
 var canvas = document.getElementById("canvas");
@@ -701,9 +701,9 @@ var OUT_OF_PLAY_POS = {
 };
 var YOU_WIN_POS = {
   x: 195 + IN_SET.x,
-  y: 250 // const YOU_WIN_SIZE = {x: 300, y: 300};
+  y: 250
+}; // const YOU_WIN_SIZE = {x: 300, y: 300};
 
-};
 var canvasPattern = document.createElement("canvas");
 var ctxPattern = canvasPattern.getContext("2d");
 canvasPattern.width = 10;
@@ -828,7 +828,7 @@ showWin = function showWin() {
 };
 
 highlightCard = function highlightCard(pos, color) {
-  ctx.globalAlpha = .3;
+  ctx.globalAlpha = 0.3;
   draw.drawRoundedRec(ctx, pos, CARD_SIZE.x, CARD_SIZE.y, CARD_SIZE.x / 10, color);
   ctx.globalAlpha = 1;
 };
@@ -860,7 +860,7 @@ handleShowInstructions = function handleShowInstructions(cx, cy) {
 };
 
 handleCloseInstructions = function handleCloseInstructions(cx, cy) {
-  if (cx >= CLOSE_INSTRUCTIONS_POS.x && cx <= CLOSE_INSTRUCTIONS_POS.x + CLOSE_INSTRUCTIONS_SIZE.x && cy >= CLOSE_INSTRUCTIONS_POS.y && cy <= CLOSE_INSTRUCTIONS_POS.y + CLOSE_INSTRUCTIONS_SIZE.y || cx < INSTRUCTIONS_POS.x || cx > INSTRUCTIONS_POS.x + INSTRUCTIONS_SIZE.x || cy < INSTRUCTIONS_POS.y) {
+  if (cx >= CLOSE_INSTRUCTIONS_POS.x && cx <= CLOSE_INSTRUCTIONS_POS.x + CLOSE_INSTRUCTIONS_SIZE.x && cy >= CLOSE_INSTRUCTIONS_POS.y && cy <= CLOSE_INSTRUCTIONS_POS.y + CLOSE_INSTRUCTIONS_SIZE.y || cx < INSTRUCTIONS_POS.x || cx > INSTRUCTIONS_POS.x + INSTRUCTIONS_SIZE.x || cy < INSTRUCTIONS_POS.y || cy > INSTRUCTIONS_POS.y + INSTRUCTIONS_SIZE.y) {
     var navLinks = document.getElementById("links");
     var card_img = document.getElementById("card");
     card_img.classList.remove("dim");

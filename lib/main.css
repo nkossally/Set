@@ -3,7 +3,7 @@ body {
   padding: 0 !important;
 }
 
-#canvas{
+#canvas {
   position: absolute;
   z-index: -1;
 }
@@ -27,7 +27,7 @@ body {
 }
 
 .dim * {
-  opacity: .5;
+  opacity: 0.5;
 }
 
 #card-img {
@@ -39,9 +39,9 @@ body {
 
 @-webkit-keyframes rotation {
   from {
-      -webkit-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
   }
   to {
-      -webkit-transform: rotate(359deg);
+    -webkit-transform: rotate(359deg);
   }
 }
